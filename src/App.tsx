@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, LogOut, User as UserIcon, LayoutDashboard, Inbox, Settings, BarChart3 } from 'lucide-react'
+import { LogOut, User as UserIcon, LayoutDashboard, Inbox, Settings, BarChart3 } from 'lucide-react'
 import { TransactionStack } from './features/inbox/components/TransactionStack'
 import { useAuth } from './features/auth/AuthContext'
 import { ZenLoginForm } from './features/auth/ZenLoginForm'
@@ -41,8 +41,6 @@ function App() {
         className="fixed top-8 left-8 right-8 flex justify-between items-center z-50 pointer-events-none"
       >
         <div className="flex items-center space-x-2 text-white/40 text-xs font-bold uppercase tracking-tighter">
-          <Sparkles className="w-4 h-4 text-primary" />
-          <span>Ocean Calm</span>
         </div>
 
         {user && (

@@ -8,7 +8,7 @@ interface ProjectCardProps {
     target: number
     category: string
     icon?: React.ReactNode
-    onFeed?: () => void
+    onFeed?: (e: React.MouseEvent) => void
 }
 
 export const ProjectCard: React.FC<ProjectCardProps> = ({ title, current, target, category, icon, onFeed }) => {

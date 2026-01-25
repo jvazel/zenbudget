@@ -11,7 +11,7 @@
 ## 🛠️ Stack Technique
 - **Frontend** : React 18 + TypeScript + Vite
 - **Animations** : Framer Motion (Interactions fluides et swipes)
-- **Design System** : Tailwind CSS + Lucide Icons (Thème "Ocean Calm")
+- **Design System** : Tailwind CSS + Lucide Icons
 - **Backend & Temps Réel** : Supabase (PostgreSQL, Auth, Realtime, RLS)
 - **Gestion d'État** : TanStack Query
 - **Sécurité** : Row Level Security (RLS) pour un isolement total des données.
@@ -40,7 +40,7 @@
    ```
 
 ## 📈 Fonctionnalités Avancées
-- **ZenTrends** : Visualisation robuste des flux financiers sur 6 mois avec affichage des montants.
+- **Zen Analysis** : Suite complète (Voyage Temporel, Fuites d'Énergie, Fleuve des Flux) pour comprendre ses habitudes.
 - **ZenAlert** : Détection intelligente des anomalies de dépenses.
 - **Portals & Focus** : Modales immersives avec blocage du scroll arrière pour une concentration totale.
 

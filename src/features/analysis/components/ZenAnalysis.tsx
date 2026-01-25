@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, FileText, TrendingUp, Wallet, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, TrendingUp, Wallet, CheckCircle2 } from 'lucide-react'
 import { transactionService } from '../../../services/transactionService'
 import { type Transaction } from '../../inbox/components/TransactionCard'
-import { ICON_MAP } from '../../inbox/components/TransactionCard'
 import { useScrollLock } from '../../../hooks/useScrollLock'
+import { ZenTimeComparator } from './ZenTimeComparator'
+import { EnergyLeaks } from './EnergyLeaks'
+import { ZenCategoryFlow } from './ZenCategoryFlow'
 
 export const ZenAnalysis: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -33,17 +35,7 @@ export const ZenAnalysis: React.FC = () => {
         return Math.abs(t.amount) > avg * 1.5
     })
 
-    // Logic: ZenContracts (Recurring)
-    const recurring = transactions.reduce((acc, t) => {
-        if (t.amount > 0) return acc
-        const key = t.description.split(' ')[0]
-        if (!acc[key]) acc[key] = { items: [], total: 0 }
-        acc[key].items.push(t)
-        acc[key].total += Math.abs(t.amount)
-        return acc
-    }, {} as Record<string, { items: Transaction[], total: number }>)
 
-    const subscriptions = Object.entries(recurring).filter(([_, data]) => data.items.length >= 2)
 
     // Diagnostic & Analytical Variables
     const hasData = transactions.length > 0
@@ -187,81 +179,19 @@ export const ZenAnalysis: React.FC = () => {
                 </div>
             </section>
 
-            {/* ZenContracts Section */}
+            {/* Energy Leaks Section */}
             <section className="space-y-4">
-                <div className="flex items-center space-x-2 px-2">
-                    <FileText className="w-4 h-4 text-[#06b6d4]" />
-                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">ZenContracts</h2>
-                </div>
-                <div className="glass rounded-3xl p-6 border border-white/5">
-                    <p className="text-xs text-muted-foreground mb-4 font-medium uppercase tracking-tight opacity-60">Potentiel de renégociation</p>
-                    <div className="space-y-3">
-                        {subscriptions.length > 0 ? subscriptions.map(([key, data]) => (
-                            <div key={key} className="flex justify-between items-center p-4 bg-white/5 rounded-2xl border border-white/5 group hover:border-[#06b6d4]/30 transition-colors">
-                                <div className="flex items-center space-x-3">
-                                    <div className="p-2 bg-white/5 rounded-xl">
-                                        {data.items[0].category_icon && ICON_MAP[data.items[0].category_icon] ?
-                                            React.createElement(ICON_MAP[data.items[0].category_icon], { className: "w-4 h-4 opacity-40" }) :
-                                            <FileText className="w-4 h-4 opacity-40" />
-                                        }
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-bold">{data.items[0].description}</p>
-                                        <p className="text-[10px] text-muted-foreground tracking-widest uppercase font-bold h-[10px] overflow-hidden">Récurrent • {data.items.length}x</p>
-                                    </div>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-sm font-mono font-bold">{data.items[0].amount.toLocaleString('fr-FR')}€</p>
-                                    <p className="text-[9px] text-[#06b6d4]/60 font-bold uppercase tracking-tighter">/ mois</p>
-                                </div>
-                            </div>
-                        )) : (
-                            <div className="p-4 bg-white/5 rounded-2xl border border-dashed border-white/10 text-center">
-                                <p className="text-[10px] text-muted-foreground italic mb-2">Aucun abonnement détecté automatiquement.</p>
-                                <p className="text-[9px] text-white/30 uppercase font-bold">Astuce: Valide plus de transactions dans l'Inbox</p>
-                            </div>
-                        )}
-                    </div>
-                </div>
+                <EnergyLeaks />
             </section>
 
-            {/* ZenTrends Section */}
+            {/* ZenCategoryFlow Section */}
             <section className="space-y-4">
-                <div className="flex items-center space-x-2 px-2">
-                    <TrendingUp className="w-4 h-4 text-[#06b6d4]" />
-                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">ZenTrends</h2>
-                </div>
-                <div className="glass rounded-3xl p-6 border border-white/5">
-                    <p className="text-xs text-muted-foreground mb-12 text-center">Évolution mensuelle de vos flux.</p>
+                <ZenCategoryFlow />
+            </section>
 
-                    <div style={{ width: '100%', padding: '0 10px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.1)' }}>
-                        <table style={{ width: '100%', borderCollapse: 'separate', borderSpacing: '8px 0', height: '160px' }}>
-                            <tbody>
-                                <tr>
-                                    {[40, 65, 45, 85, 55, 75].map((h, i) => (
-                                        <td key={i} style={{ verticalAlign: 'bottom', textAlign: 'center', paddingBottom: '10px' }}>
-                                            <div style={{ fontSize: '8px', fontWeight: 'bold', color: '#06cced', marginBottom: '4px', fontFamily: 'monospace' }}>
-                                                {h * 12}€
-                                            </div>
-                                            <div style={{
-                                                width: '100%',
-                                                minWidth: '24px',
-                                                height: `${h}px`,
-                                                backgroundColor: '#06b6d4',
-                                                border: '1px solid rgba(255, 255, 255, 0.2)',
-                                                borderRadius: '4px 4px 0 0',
-                                                boxShadow: '0 2px 10px rgba(6, 182, 212, 0.3)'
-                                            }} />
-                                            <div style={{ marginTop: '8px', fontSize: '9px', fontWeight: 'bold', color: 'rgba(255, 255, 255, 0.3)', textTransform: 'uppercase' }}>
-                                                {5 - i === 0 ? 'M' : `M-${5 - i}`}
-                                            </div>
-                                        </td>
-                                    ))}
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+            {/* ZenTimeComparator Section */}
+            <section className="space-y-4">
+                <ZenTimeComparator />
             </section>
 
             {/* ZenSavings Section */}
@@ -280,11 +210,7 @@ export const ZenAnalysis: React.FC = () => {
                         <p className="text-[10px] text-muted-foreground italic max-w-[200px] mx-auto leading-relaxed">
                             Basé sur vos revenus {hasData ? `de ce mois (${displayIncome.toLocaleString('fr-FR')}€)` : 'habituels'}, nous vous suggérons d\'épargner 10% pour vos projets futurs.
                         </p>
-                        <button
-                            className="mt-6 px-8 py-3 bg-[#06b6d4] text-background rounded-full text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl shadow-[#06b6d4]/20 hover:scale-105 transition-transform"
-                        >
-                            Épargner maintenant
-                        </button>
+
                     </div>
                 </div>
             </section>

@@ -48,5 +48,52 @@ export const savingsService = {
             console.error('Failed to update savings amount:', e)
             throw e
         }
+    },
+
+    async createSavingsGoal(goal: Omit<SavingsGoal, 'id' | 'owner_id' | 'created_at'>): Promise<SavingsGoal> {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('User not authenticated')
+
+            const { data, error } = await supabase
+                .from('savings_goals')
+                .insert([{ ...goal, owner_id: user.id }])
+                .select()
+                .single()
+
+            if (error) throw error
+            return data
+        } catch (e) {
+            console.error('Failed to create savings goal:', e)
+            throw e
+        }
+    },
+
+    async updateSavingsGoal(id: string, updates: Partial<SavingsGoal>): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('savings_goals')
+                .update(updates)
+                .eq('id', id)
+
+            if (error) throw error
+        } catch (e) {
+            console.error('Failed to update savings goal:', e)
+            throw e
+        }
+    },
+
+    async deleteSavingsGoal(id: string): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('savings_goals')
+                .delete()
+                .eq('id', id)
+
+            if (error) throw error
+        } catch (e) {
+            console.error('Failed to delete savings goal:', e)
+            throw e
+        }
     }
 }
