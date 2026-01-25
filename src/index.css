@@ -1,0 +1,45 @@
+@import "tailwindcss";
+
+@theme {
+  --color-background: hsl(220 30% 7%);
+  --color-foreground: hsl(210 20% 98%);
+  --color-card: hsl(220 30% 10%);
+  --color-card-foreground: hsl(210 20% 98%);
+  --color-popover: hsl(220 30% 7%);
+  --color-popover-foreground: hsl(210 20% 98%);
+  --color-primary: hsl(188 90% 43%);
+  --color-primary-foreground: hsl(220 30% 7%);
+  --color-secondary: hsl(220 20% 15%);
+  --color-secondary-foreground: hsl(210 20% 98%);
+  --color-muted: hsl(220 20% 15%);
+  --color-muted-foreground: hsl(215 20% 65%);
+  --color-accent: hsl(188 90% 43%);
+  --color-accent-foreground: hsl(220 30% 7%);
+  --color-destructive: hsl(0 62.8% 30.6%);
+  --color-destructive-foreground: hsl(210 20% 98%);
+  --color-border: hsl(220 20% 15%);
+  --color-input: hsl(220 20% 15%);
+  --color-ring: hsl(188 90% 43%);
+  --radius-lg: 0.75rem;
+  --radius-md: calc(0.75rem - 2px);
+  --radius-sm: calc(0.75rem - 4px);
+
+  --color-ocean-dark: #0a192f;
+  --color-ocean-calm: #0f213a;
+  --color-ocean-highlight: #06b6d4;
+}
+
+@layer base {
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+/* Glassmorphism utility */
+.glass {
+  background: rgba(15, 33, 58, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}

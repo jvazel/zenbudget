@@ -1,0 +1,73 @@
+# BMad Workflow Status - zenbudget
+# Generated: 2026-01-22
+# Updated: 2026-01-24
+
+project: "zenbudget"
+project_type: "Software/Web/Mobile"
+selected_track: "enterprise-bmad-method"
+field_type: "greenfield"
+workflow_path: "{project-root}/_bmad/bmm/workflows/workflow-status/paths/enterprise-greenfield.yaml"
+
+workflow_status:
+  - phase: 1
+    name: "Analysis"
+    items:
+      - id: "brainstorm-project"
+        status: "{output_folder}/analysis/brainstorming-session-2026-01-22.md"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:brainstorming"
+        output: "{planning-artifacts}/brainstorm.md"
+      - id: "research"
+        status: "skipped"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:research"
+      - id: "product-brief"
+        status: "{planning-artifacts}/product-brief-zenbudget-2026-01-22.md"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:create-product-brief"
+        output: "{planning-artifacts}/product-brief.md"
+
+  - phase: 2
+    name: "Planning"
+    items:
+      - id: "prd"
+        status: "{planning-artifacts}/prd.md"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:prd"
+        output: "{planning-artifacts}/prd/index.md"
+      - id: "create-ux-design"
+        status: "{planning-artifacts}/ux-design-specification.md"
+        agent: "ux-designer"
+        command: "/bmad:bmm:workflows:create-ux-design"
+        output: "{planning-artifacts}/ux-design/index.md"
+
+  - phase: 3
+    name: "Solutioning"
+    items:
+      - id: "create-architecture"
+        status: "{planning-artifacts}/architecture.md"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:create-architecture"
+        output: "{planning-artifacts}/architecture/index.md"
+      - id: "create-epics-and-stories"
+        status: "{planning-artifacts}/epics-and-stories.md"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:create-epics-and-stories"
+        output: "{planning-artifacts}/epics-and-stories.md"
+      - id: "test-design"
+        status: "optional"
+        agent: "tea"
+        command: "/bmad:bmm:workflows:testarch-test-design"
+      - id: "implementation-readiness"
+        status: "{planning-artifacts}/implementation-readiness-report-2026-01-24.md"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:check-implementation-readiness"
+
+  - phase: 4
+    name: "Implementation"
+    items:
+      - id: "sprint-planning"
+        status: "required"
+        agent: "sm"
+        command: "/bmad:bmm:workflows:sprint-planning"
+        output: "{implementation-artifacts}/sprint-status.yaml"

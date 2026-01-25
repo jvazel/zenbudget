@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenBudget Theme Visualizer</title>
+    <style>
+        :root {
+            --midnight-bg: #0a0a0c;
+            --midnight-card: #141417;
+            --midnight-accent: #3b82f6;
+            --midnight-text: #f9fafb;
+
+            --forest-bg: #0d120e;
+            --forest-card: #151d16;
+            --forest-accent: #10b981;
+            --forest-text: #f0fdf4;
+
+            --ocean-bg: #0f172a;
+            --ocean-card: #1e293b;
+            --ocean-accent: #06b6d4;
+            --ocean-text: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px;
+            background: #000;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .theme-section {
+            padding: 30px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .midnight { background: var(--midnight-bg); color: var(--midnight-text); }
+        .forest { background: var(--forest-bg); color: var(--forest-text); }
+        .ocean { background: var(--ocean-bg); color: var(--ocean-text); }
+
+        .preview {
+            display: flex;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            width: 200px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .accent-box {
+            height: 4px;
+            border-radius: 2px;
+            margin-bottom: 15px;
+        }
+
+        .midnight .accent-box { background: var(--midnight-accent); }
+        .forest .accent-box { background: var(--forest-accent); }
+        .ocean .accent-box { background: var(--ocean-accent); }
+
+        h2 { margin-bottom: 10px; }
+        p { opacity: 0.7; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h1>ZenBudget Visual Themes</h1>
+
+    <div class="theme-section midnight">
+        <h2>Midnight Zen</h2>
+        <p>Proton-like, deep, focus-oriented. Ideal for late-night budgeting.</p>
+        <div class="preview">
+            <div class="card">
+                <div class="accent-box"></div>
+                RAV: 1 250 €
+            </div>
+            <div class="card">
+                <div class="accent-box"></div>
+                Inbox (3)
+            </div>
+        </div>
+    </div>
+
+    <div class="theme-section forest">
+        <h2>Forest Sanctuary</h2>
+        <p>Growth, organic, grounded. Connects money to energy.</p>
+        <div class="preview">
+            <div class="card">
+                <div class="accent-box"></div>
+                RAV: 1 250 €
+            </div>
+            <div class="card">
+                <div class="accent-box"></div>
+                Inbox (3)
+            </div>
+        </div>
+    </div>
+
+    <div class="theme-section ocean">
+        <h2>Ocean Calm</h2>
+        <p>Fluid, clear, transparent. Like looking through deep water.</p>
+        <div class="preview">
+            <div class="card">
+                <div class="accent-box"></div>
+                RAV: 1 250 €
+            </div>
+            <div class="card">
+                <div class="accent-box"></div>
+                Inbox (3)
+            </div>
+        </div>
+    </div>
+</body>
+</html>
