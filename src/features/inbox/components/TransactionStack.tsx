@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
+import { AnimatePresence } from 'framer-motion'
 import { TransactionCard, type Transaction } from './TransactionCard'
 import { ShieldCheck, Zap, Loader2 } from 'lucide-react'
 import { transactionService } from '../../../services/transactionService'
+import { patternService } from '../../../services/patternService'
 import { supabase } from '../../../lib/supabase'
 import { ZenSuccessState } from './ZenSuccessState'
 
@@ -73,6 +74,11 @@ export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }
 
         // Remote Sync
         await transactionService.updateTransactionStatus(swipedTransaction.id, status)
+
+        // Zen Butler Learning (only if validated and has category)
+        if (status === 'validated' && swipedTransaction.category_id) {
+            await patternService.learnPattern(swipedTransaction.description, swipedTransaction.category_id)
+        }
     }
 
     if (isLoading) {

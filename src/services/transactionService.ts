@@ -1,5 +1,6 @@
 import { supabase, isConfigured } from '../lib/supabase'
 import { type Transaction } from '../features/inbox/components/TransactionCard'
+import { patternService } from './patternService'
 
 const generateMockHistory = (): Transaction[] => {
     const transactions: Transaction[] = []
@@ -63,7 +64,17 @@ const generateMockHistory = (): Transaction[] => {
             })
         }
     }
-    return transactions
+
+    // Add extra Pending mocks for demo
+    const pendingMocks: Transaction[] = [
+        { id: 'p-1', description: 'Monoprix', amount: -42.50, predicted_category: 'Alimentation', category_icon: 'ShoppingBag', category_color: '#10b981', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' },
+        { id: 'p-2', description: 'Uber Trip', amount: -15.20, predicted_category: 'Transport', category_icon: 'Car', category_color: '#ef4444', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' },
+        { id: 'p-3', description: 'Netflix', amount: -17.99, predicted_category: 'Loisirs', category_icon: 'Sparkles', category_color: '#f59e0b', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' },
+        { id: 'p-4', description: 'Boulangerie Paul', amount: -8.40, predicted_category: 'Inconnu', category_icon: 'HelpCircle', category_color: '#94a3b8', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' },
+        { id: 'p-5', description: 'Spotify', amount: -10.99, predicted_category: 'Loisirs', category_icon: 'Sparkles', category_color: '#f59e0b', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' }
+    ]
+
+    return [...transactions, ...pendingMocks]
 }
 
 const MOCK_DATA = generateMockHistory()
@@ -84,7 +95,7 @@ export const transactionService = {
                 return MOCK_DATA.filter(t => t.status === 'pending')
             }
 
-            return data.map(t => ({
+            const pending = data.map(t => ({
                 id: t.id,
                 description: t.description,
                 amount: Number(t.amount),
@@ -97,8 +108,28 @@ export const transactionService = {
                     year: 'numeric'
                 }),
                 validated_by: t.validated_by,
-                validated_by_name: t.profiles?.full_name
+                validated_by_name: t.profiles?.full_name,
+                category_id: t.category_id
             }))
+
+            // Apply Zen Butler Suggestions
+            const enhanced = await Promise.all(pending.map(async (t) => {
+                if (!t.category_id) {
+                    const match = await patternService.findPattern(t.description)
+                    if (match) {
+                        return {
+                            ...t,
+                            predicted_category: match.categoryName || t.predicted_category,
+                            category_color: match.categoryColor || t.category_color,
+                            category_icon: match.categoryIcon || t.category_icon,
+                            isval_zen_suggestion: true // Optional flag for UI
+                        }
+                    }
+                }
+                return t
+            }))
+
+            return enhanced as Transaction[]
         } catch (e) {
             console.error('Failed to fetch transactions from Supabase:', e)
             return MOCK_DATA.filter(t => t.status === 'pending')
