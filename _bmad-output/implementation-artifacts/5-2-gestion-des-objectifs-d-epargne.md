@@ -1,6 +1,6 @@
 # Story 5.2: Gestion des Objectifs d'Épargne
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -53,4 +53,6 @@ Antigravity v1.0 (Gemini 2.0 Flash)
 ### File List
 - `supabase/migrations/20260124115000_add_savings_goals.sql`
 - `src/services/savingsService.ts`
+- `src/services/savingsService.test.ts`
 - `src/features/dashboard/components/ProjectCard.tsx`
+- `src/features/dashboard/components/ProjectCard.test.tsx`

@@ -66,8 +66,8 @@ development_status:
 
   epic-5: backlog
   5-1-zengauge-du-reste-a-vivre-rav: done
-  5-2-gestion-des-objectifs-d-epargne: review
-  5-3-transition-zero-state-vers-dashboard: review
+  5-2-gestion-des-objectifs-d-epargne: done
+  5-3-transition-zero-state-vers-dashboard: done
   5-4-navigation-temporelle-historique: backlog
   epic-5-retrospective: optional
 

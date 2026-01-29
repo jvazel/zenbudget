@@ -36,19 +36,17 @@ so that I feel a sense of accomplishment at the end of my daily ritual.
 
 ### References
 
-- [Source: _bmad-output/planning-artifacts/epics-and-stories.md#Story 5.3]
+- [x] <!-- id: 4 --> **Visualiser la transition/Zero State**
+    - [x] <!-- id: 5 --> Créer le composant `ZenSuccessState`
+    - [x] <!-- id: 6 --> Implémenter la logique de détection "plus de transactions" dans `TransactionStack`
+    - [x] <!-- id: 7 --> Déclencher `onComplete` après un délai (2-3s)
 
-## Dev Agent Record
-
-### Agent Model Used
-
-Antigravity v1.0 (Gemini 2.0 Flash)
-
-### Debug Log References
-
-### Completion Notes List
-
-### File List
+#### Files
 - `src/features/inbox/components/TransactionStack.tsx`
 - `src/features/inbox/components/ZenSuccessState.tsx`
+- `src/features/inbox/components/TransactionStack.test.tsx`
+- `src/features/inbox/components/ZenSuccessState.test.tsx`
 - `src/App.tsx`
+
+#### Status
+done
