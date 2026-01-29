@@ -1,6 +1,6 @@
 # Story 5.1: ZenGauge du Reste à Vivre (RAV)
 
-Status: ready-for-dev
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -57,3 +57,6 @@ Antigravity v1.0 (Gemini 2.0 Flash)
 - `src/features/dashboard/components/ZenGauge.tsx`
 - `src/features/dashboard/components/ZenDashboard.tsx`
 - `src/services/transactionService.ts`
+- `src/features/dashboard/components/ZenGauge.test.tsx`
+- `src/services/transactionService.test.ts`
+- `src/test/setup.ts`
