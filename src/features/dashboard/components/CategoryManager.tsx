@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Tag, Plus, Trash2, X, Sparkles, ShoppingBag, Coffee, Car, Home, Heart } from 'lucide-react'
+import { Tag, Plus, Trash2, X, Sparkles, ShoppingBag, Coffee, Car, Home, Heart, Download, Shield } from 'lucide-react'
 import { categoryService, type Category } from '../../../services/categoryService'
+import { transactionService } from '../../../services/transactionService'
+import { exportService } from '../../../services/exportService'
 
 const PRESET_ICONS = [
     { name: 'Tag', icon: Tag },
@@ -34,6 +36,7 @@ export const CategoryManager: React.FC = () => {
         color: PRESET_COLORS[0],
         type: 'expense' as 'income' | 'expense'
     })
+    const [isExporting, setIsExporting] = useState(false)
 
     useEffect(() => {
         loadCategories()
@@ -88,6 +91,22 @@ export const CategoryManager: React.FC = () => {
         const success = await categoryService.deleteCategory(id)
         if (success) {
             setCategories(categories.filter(c => c.id !== id))
+        }
+    }
+
+    const handleExport = async () => {
+        setIsExporting(true)
+        try {
+            const data = await transactionService.getAllValidatedTransactions()
+            const csv = exportService.convertToCSV(data)
+
+            const fileName = `zenbudget-export-${new Date().toISOString().split('T')[0]}.csv`
+            exportService.downloadFile(csv, fileName)
+        } catch (error) {
+            console.error('Export failed:', error)
+            alert('L\'exportation a échoué. Veuillez réessayer.')
+        } finally {
+            setIsExporting(false)
         }
     }
 
@@ -225,6 +244,40 @@ export const CategoryManager: React.FC = () => {
                         )
                     })
                 )}
+            </div>
+
+            {/* Security & Data Section */}
+            <div className="space-y-4 pt-8">
+                <div className="flex items-center space-x-2 px-2">
+                    <Shield className="w-4 h-4 text-white/40" />
+                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest">Sécurité & Données</h3>
+                </div>
+
+                <motion.div
+                    whileHover={{ scale: 1.01 }}
+                    className="glass p-6 rounded-3xl border border-white/5 space-y-4">
+                    <div className="space-y-1">
+                        <p className="text-sm font-bold text-white">Exporter mon historique</p>
+                        <p className="text-[10px] text-white/40 leading-relaxed">
+                            Téléchargez toutes vos transactions validées au format CSV. compatible avec Excel et Google Sheets.
+                        </p>
+                    </div>
+
+                    <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        onClick={handleExport}
+                        disabled={isExporting}
+                        className="w-full py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-2xl flex items-center justify-center space-x-3 transition-all disabled:opacity-50">
+                        {isExporting ? (
+                            <Plus className="w-4 h-4 text-primary animate-spin" />
+                        ) : (
+                            <Download className="w-4 h-4 text-primary" />
+                        )}
+                        <span className="text-xs font-bold text-white/70 uppercase tracking-widest">
+                            {isExporting ? 'Préparation...' : 'Exporter mes données (CSV)'}
+                        </span>
+                    </motion.button>
+                </motion.div>
             </div>
         </div>
     )

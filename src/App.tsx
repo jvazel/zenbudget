@@ -8,6 +8,7 @@ import { PartnerInvite } from './features/sharing/components/PartnerInvite'
 import { ZenDashboard } from './features/dashboard/components/ZenDashboard'
 import { CategoryManager } from './features/dashboard/components/CategoryManager'
 import { ZenAnalysis } from './features/analysis/components/ZenAnalysis'
+import { ZenToastContainer } from './features/dashboard/components/ZenToastContainer'
 import './App.css'
 
 function App() {
@@ -80,7 +81,7 @@ function App() {
       </motion.div>
 
       {/* Main Content Area */}
-      <div className="w-full max-w-lg relative z-20 flex flex-col items-center">
+      <div className={`w-full relative z-20 flex flex-col items-center transition-all duration-500 ${(activeTab === 'dashboard' || activeTab === 'analysis') ? 'max-w-7xl' : 'max-w-lg'}`}>
         {!user ? (
           <ZenLoginForm />
         ) : (
@@ -177,6 +178,8 @@ function App() {
           </button>
         </motion.div>
       )}
+
+      <ZenToastContainer />
     </div>
   )
 }

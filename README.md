@@ -6,14 +6,15 @@
 - **Inbox Zero** : Validez vos transactions d'un simple geste (Swipe).
 - **Reste à Vivre (RAV)** : Une jauge unique pour savoir exactement ce que vous pouvez dépenser.
 - **Duo Pilot** : Partagez votre budget avec votre partenaire en un clic (fenêtre de 24h sécurisée).
+- **Zen Notifications** : Soyez informé en temps réel des actions de votre partenaire et des automatisations IA.
 - **Analyses de Sérénité** : ZenAlert, ZenTrends et ZenSavings pour anticiper et épargner sans effort.
 
 ## 🛠️ Stack Technique
-- **Frontend** : React 18 + TypeScript + Vite
-- **Animations** : Framer Motion (Interactions fluides et swipes)
-- **Design System** : Tailwind CSS + Lucide Icons
+- **Frontend** : React 19 + TypeScript + Vite 7
+- **Animations** : Framer Motion (Interactions fluides, toasts glassmorphic)
+- **Design System** : Tailwind CSS v4 + Lucide Icons
 - **Backend & Temps Réel** : Supabase (PostgreSQL, Auth, Realtime, RLS)
-- **Gestion d'État** : TanStack Query
+- **Gestion d'État** : Zustand & TanStack Query
 - **Sécurité** : Row Level Security (RLS) pour un isolement total des données.
 
 ## 🚀 Installation locale

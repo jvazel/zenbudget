@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, TrendingUp, Wallet, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, TrendingUp, CheckCircle2 } from 'lucide-react'
 import { transactionService } from '../../../services/transactionService'
 import { type Transaction } from '../../inbox/components/TransactionCard'
 import { useScrollLock } from '../../../hooks/useScrollLock'
 import { ZenTimeComparator } from './ZenTimeComparator'
 import { EnergyLeaks } from './EnergyLeaks'
 import { ZenCategoryFlow } from './ZenCategoryFlow'
+import { ZenContracts } from './ZenContracts'
+import { ZenTrends } from './ZenTrends'
+import { ZenSavings } from './ZenSavings'
 
 export const ZenAnalysis: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -34,14 +37,6 @@ export const ZenAnalysis: React.FC = () => {
         const avg = catTransactions.reduce((acc, curr) => acc + Math.abs(curr.amount), 0) / catTransactions.length
         return Math.abs(t.amount) > avg * 1.5
     })
-
-
-
-    // Diagnostic & Analytical Variables
-    const hasData = transactions.length > 0
-    const income = transactions.filter(t => t.amount > 0).reduce((acc, t) => acc + t.amount, 0)
-    const displayIncome = hasData ? income : 2800
-    const suggestedSavings = displayIncome * 0.1
 
     if (loading) return <div className="text-center p-20 opacity-40 italic text-xs">Analyse en cours...</div>
 
@@ -179,6 +174,16 @@ export const ZenAnalysis: React.FC = () => {
                 </div>
             </section>
 
+            {/* ZenContracts Section */}
+            <section className="space-y-4">
+                <ZenContracts />
+            </section>
+
+            {/* ZenTrends Section */}
+            <section className="space-y-4">
+                <ZenTrends />
+            </section>
+
             {/* Energy Leaks Section */}
             <section className="space-y-4">
                 <EnergyLeaks />
@@ -196,23 +201,7 @@ export const ZenAnalysis: React.FC = () => {
 
             {/* ZenSavings Section */}
             <section className="space-y-4">
-                <div className="flex items-center space-x-2 px-2">
-                    <Wallet className="w-4 h-4 text-[#06b6d4]" />
-                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">ZenSavings</h2>
-                </div>
-                <div className="glass rounded-3xl p-8 border border-white/5 bg-[#06b6d4]/5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 p-8 opacity-5">
-                        <Wallet className="w-24 h-24 text-[#06b6d4]" />
-                    </div>
-                    <div className="text-center space-y-4 relative z-10">
-                        <p className="text-[10px] text-[#06b6d4] font-bold uppercase tracking-[0.3em]">Projection de Sérénité</p>
-                        <p className="text-4xl font-mono font-bold tracking-tighter">{suggestedSavings.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</p>
-                        <p className="text-[10px] text-muted-foreground italic max-w-[200px] mx-auto leading-relaxed">
-                            Basé sur vos revenus {hasData ? `de ce mois (${displayIncome.toLocaleString('fr-FR')}€)` : 'habituels'}, nous vous suggérons d\'épargner 10% pour vos projets futurs.
-                        </p>
-
-                    </div>
-                </div>
+                <ZenSavings />
             </section>
         </div>
     )

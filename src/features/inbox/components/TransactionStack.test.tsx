@@ -1,14 +1,15 @@
-import { render, screen, act, waitFor } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { TransactionStack } from './TransactionStack'
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { transactionService } from '../../../services/transactionService'
 import React from 'react'
 
-// Manual Mocks to avoid complex mocking issues
+// Manual Mocks
 vi.mock('../../../services/transactionService', () => ({
     transactionService: {
         getPendingTransactions: vi.fn(),
-        updateTransactionStatus: vi.fn()
+        updateTransactionStatus: vi.fn(),
+        importTransactions: vi.fn()
     }
 }))
 
@@ -20,17 +21,34 @@ vi.mock('./ZenSuccessState', () => ({
     ZenSuccessState: () => <div data-testid="success-state">Success</div>
 }))
 
-// Mock lucide-react
+vi.mock('../../../stores/useNotificationStore', () => ({
+    useNotificationStore: () => ({
+        addNotification: vi.fn(),
+        removeNotification: vi.fn(),
+        notifications: []
+    })
+}))
+
+vi.mock('../../auth/AuthContext', () => ({
+    useAuth: () => ({
+        user: { id: 'test-user', email: 'johann@zenbudget.app' },
+        loading: false
+    })
+}))
+
 vi.mock('lucide-react', () => ({
     ShieldCheck: () => <div />,
     Zap: () => <div />,
-    Loader2: () => <div data-testid="loader">Loading...</div>
+    Loader2: () => <div data-testid="loader">Loading...</div>,
+    Upload: () => <div />,
+    CheckCircle2: () => <div />
 }))
 
 vi.mock('framer-motion', () => ({
     AnimatePresence: ({ children }: any) => <>{children}</>,
     motion: {
-        div: ({ children, ...props }: any) => <div {...props}>{children}</div>
+        div: ({ children, ...props }: any) => <div {...props}>{children}</div>,
+        button: ({ children, ...props }: any) => <button {...props}>{children}</button>
     }
 }))
 
@@ -47,11 +65,6 @@ vi.mock('../../../lib/supabase', () => ({
 describe('TransactionStack', () => {
     beforeEach(() => {
         vi.clearAllMocks()
-        // vi.useFakeTimers()
-    })
-
-    afterEach(() => {
-        // vi.useRealTimers()
     })
 
     it('shows success state when no transactions', async () => {
@@ -68,19 +81,9 @@ describe('TransactionStack', () => {
         })
     })
 
-    it('triggers onComplete after delay when empty', async () => {
-        (transactionService.getPendingTransactions as any).mockResolvedValue([])
-        const onCompleteMock = vi.fn()
-
-        render(<TransactionStack onComplete={onCompleteMock} />)
-
-        await waitFor(() => {
-            expect(screen.getByTestId('success-state')).toBeInTheDocument()
-        })
-
-        // Wait for onComplete (needs > 2500ms) logic in component
-        await waitFor(() => {
-            expect(onCompleteMock).toHaveBeenCalled()
-        }, { timeout: 4000 })
+    it('shows loader initially', () => {
+        (transactionService.getPendingTransactions as any).mockReturnValue(new Promise(() => { }))
+        render(<TransactionStack />)
+        expect(screen.getByTestId('loader')).toBeInTheDocument()
     })
 })

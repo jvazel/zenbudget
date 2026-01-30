@@ -1,6 +1,8 @@
 import { supabase, isConfigured } from '../lib/supabase'
 import { type Transaction } from '../features/inbox/components/TransactionCard'
 import { patternService } from './patternService'
+import { analysisService } from './analysisService'
+import { type ImportedTransaction } from './importService'
 
 const generateMockHistory = (): Transaction[] => {
     const transactions: Transaction[] = []
@@ -65,6 +67,26 @@ const generateMockHistory = (): Transaction[] => {
         }
     }
 
+    // Add a specific Anomaly mock
+    transactions.push({
+        id: 'mock-anomaly-1',
+        description: 'Monoprix Exceptionnel',
+        amount: -185.40, // Assuming average is around 50
+        predicted_category: 'Alimentation',
+        category_icon: 'ShoppingBag',
+        category_color: '#10b981',
+        date: now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }),
+        raw_date: now.toISOString(),
+        status: 'validated',
+        category_id: 'cat-1',
+        anomaly: {
+            isAnomaly: true,
+            type: 'price_spike',
+            averageAmount: 52,
+            difference: 256
+        }
+    })
+
     // Add extra Pending mocks for demo
     const pendingMocks: Transaction[] = [
         { id: 'p-1', description: 'Monoprix', amount: -42.50, predicted_category: 'Alimentation', category_icon: 'ShoppingBag', category_color: '#10b981', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' },
@@ -95,7 +117,7 @@ export const transactionService = {
                 return MOCK_DATA.filter(t => t.status === 'pending')
             }
 
-            const pending = data.map(t => ({
+            const pending = data.map((t: any) => ({
                 id: t.id,
                 description: t.description,
                 amount: Number(t.amount),
@@ -113,7 +135,7 @@ export const transactionService = {
             }))
 
             // Apply Zen Butler Suggestions
-            const enhanced = await Promise.all(pending.map(async (t) => {
+            const enhanced = await Promise.all(pending.map(async (t: any) => {
                 if (!t.category_id) {
                     const match = await patternService.findPattern(t.description)
                     if (match) {
@@ -176,7 +198,7 @@ export const transactionService = {
 
             if (error) throw error
 
-            return (data || []).map(t => ({
+            const mapped: Transaction[] = (data || []).map((t: any) => ({
                 id: t.id,
                 description: t.description,
                 amount: Number(t.amount),
@@ -191,6 +213,13 @@ export const transactionService = {
                 category_id: t.category_id,
                 validated_by: t.validated_by,
                 validated_by_name: t.profiles?.full_name
+            }))
+
+            // Detect Anomalies for the list
+            // Note: in a real app, we would fetch a larger history for accurate comparison
+            return mapped.map(t => ({
+                ...t,
+                anomaly: analysisService.detectAnomaly(t, mapped)
             }))
         } catch (e) {
             console.error('Failed to fetch validated transactions:', e)
@@ -351,6 +380,20 @@ export const transactionService = {
         }
     },
 
+    async deleteManualTransaction(id: string): Promise<void> {
+        try {
+            const { error } = await supabase
+                .from('transactions')
+                .delete()
+                .eq('id', id)
+
+            if (error) throw error
+        } catch (e) {
+            console.error('Failed to delete transaction:', e)
+            throw e
+        }
+    },
+
     async getMonthlyHistory(months: number = 6): Promise<{ month: string, fullMonth: string, amount: number, isCurrent: boolean }[]> {
         // Mock implementation for now, replacing the static data in ZenAnalysis
         // in a real scenario, this would aggregate Supabase data
@@ -443,7 +486,235 @@ export const transactionService = {
             trends.push(monthData)
         }
         return trends
+    },
+
+    async getSubscriptions(): Promise<{ name: string, amount: number, occurrences: number, lastDate: string, categoryName: string, categoryColor: string }[]> {
+        // Logic: find transactions that repeat with same description pattern in different months
+        const all = MOCK_DATA.filter(t => t.amount < 0 && t.status === 'validated')
+
+        const groups: Record<string, Transaction[]> = {}
+        all.forEach(t => {
+            const pattern = t.description.split(' ').slice(0, 2).join(' ').toLowerCase()
+            if (!groups[pattern]) groups[pattern] = []
+            groups[pattern].push(t)
+        })
+
+        const recurring = Object.entries(groups)
+            .filter(([_, items]) => {
+                // Heuristic: Must be in at least 2 distinct months
+                const months = new Set(items.map(t => new Date(t.raw_date || '').getMonth()))
+                return months.size >= 2
+            })
+            .map(([_, items]) => {
+                const latest = items.sort((a, b) => new Date(b.raw_date || '').getTime() - new Date(a.raw_date || '').getTime())[0]
+                const avgAmount = items.reduce((acc, t) => acc + Math.abs(t.amount), 0) / items.length
+
+                return {
+                    name: latest.description,
+                    amount: avgAmount,
+                    occurrences: items.length,
+                    lastDate: latest.date,
+                    categoryName: latest.predicted_category,
+                    categoryColor: latest.category_color || '#94a3b8'
+                }
+            })
+            .sort((a, b) => b.amount - a.amount)
+
+        return recurring
+    },
+
+    async getTrendData(): Promise<{ name: string, data: number[], trend: number, isInflation: boolean }[]> {
+        // Find top patterns (at least 3 occurrences)
+        const all = MOCK_DATA.filter(t => t.amount < 0 && t.status === 'validated')
+        const groups: Record<string, Transaction[]> = {}
+        all.forEach(t => {
+            const pattern = t.description.split(' ').slice(0, 2).join(' ').toLowerCase()
+            if (!groups[pattern]) groups[pattern] = []
+            groups[pattern].push(t)
+        })
+
+        const now = new Date()
+        const last6Months = Array.from({ length: 6 }, (_, idx) => {
+            const d = new Date(now.getFullYear(), now.getMonth() - (5 - idx), 1)
+            return d.getMonth()
+        })
+
+        const trends = Object.entries(groups)
+            .filter(([_, items]) => items.length >= 3)
+            .map(([_, items]) => {
+                const monthlyData = last6Months.map(monthIdx => {
+                    const inMonth = items.filter(t => new Date(t.raw_date || '').getMonth() === monthIdx)
+                    if (inMonth.length === 0) return 0
+                    return inMonth.reduce((acc, t) => acc + Math.abs(t.amount), 0) / inMonth.length
+                })
+
+                // If most values are 0, use a fallback or specific mock logic for demo
+                const filteredData = monthlyData.map((v) => v === 0 ? (items[0] ? Math.abs(items[0].amount) * (0.9 + Math.random() * 0.2) : 0) : v)
+
+                const firstHalf = filteredData.slice(0, 3)
+                const secondHalf = filteredData.slice(3)
+                const avg1 = firstHalf.reduce((a, b) => a + b, 0) / firstHalf.length
+                const avg2 = secondHalf.reduce((a, b) => a + b, 0) / secondHalf.length
+                const trend = avg1 > 0 ? ((avg2 - avg1) / avg1) * 100 : 0
+
+                return {
+                    name: items[0].description,
+                    data: filteredData,
+                    trend,
+                    isInflation: trend > 5
+                }
+            })
+            .sort((a, b) => b.data[5] - a.data[5])
+            .slice(0, 4)
+
+        return trends
+    },
+
+    async getSavingsPotential(): Promise<{ surplus: number, optimizable: number, total: number }> {
+        const stats = await this.getDashboardStats(new Date())
+        const subs = await this.getSubscriptions()
+        const energyLeaks = await this.getEnergyLeaks()
+
+        const surplus = Math.max(0, stats.rav)
+
+        // Optimizable = Average monthly cost of "leaks" or high-cost subscriptions that could be optimized
+        // For demo, let's say 20% of subscriptions could be optimized + 100% of energy leaks
+        const optimizableSubs = subs.reduce((acc, s) => acc + s.amount, 0) * 0.2
+        const energyImpact = energyLeaks.reduce((acc, l) => acc + (l.annualImpact / 12), 0)
+
+        const optimizable = Math.abs(optimizableSubs) + energyImpact
+
+        return {
+            surplus,
+            optimizable,
+            total: surplus + optimizable
+        }
+    },
+
+    async importTransactions(imported: ImportedTransaction[]): Promise<{ importedCount: number, skippedCount: number, autoValidatedCount: number }> {
+        if (!isConfigured) {
+            console.info('Mock Mode: Simulating bulk import', imported)
+            return { importedCount: imported.length, skippedCount: 0, autoValidatedCount: 0 }
+        }
+
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) throw new Error('Not authenticated')
+
+            // Fetch default account
+            const { data: account } = await supabase
+                .from('accounts')
+                .select('id')
+                .eq('owner_id', user.id)
+                .limit(1)
+                .maybeSingle()
+
+            const accountId = account?.id
+            if (!accountId) throw new Error('Aucun compte trouvé pour l\'import.')
+
+            // Fetch existing transactions to deduplicate (recent history)
+            const { data: existing } = await supabase
+                .from('transactions')
+                .select('description, amount, transaction_date')
+                .gte('transaction_date', new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString()) // 60 days back
+
+            const existingKeys = new Set((existing || []).map(e =>
+                `${new Date(e.transaction_date).toISOString().split('T')[0]}|${e.description.toLowerCase()}|${Number(e.amount)}`
+            ))
+
+            const toInsert = imported.filter(item => {
+                // Normalize date
+                let isoDate = ''
+                try {
+                    // Try parsing local format DD/MM/YYYY or YYYY-MM-DD
+                    const parts = item.date.split(/[/.-]/)
+                    if (parts.length === 3) {
+                        if (parts[2].length === 4) isoDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`
+                        else isoDate = `${parts[0]}-${parts[1].padStart(2, '0')}-${parts[2].padStart(2, '0')}`
+                    } else {
+                        isoDate = new Date(item.date).toISOString().split('T')[0]
+                    }
+                } catch (e) {
+                    return false
+                }
+
+                const key = `${isoDate}|${item.description.toLowerCase()}|${item.amount}`
+                return !existingKeys.has(key)
+            })
+
+            // Auto-validation logic
+            const processedToInsert = await Promise.all(toInsert.map(async item => {
+                const match = await patternService.findPattern(item.description)
+
+                // Normalize date for insertion
+                const parts = item.date.split(/[/.-]/)
+                let isoDate = item.date
+                if (parts.length === 3) {
+                    if (parts[2].length === 4) isoDate = `${parts[2]}-${parts[1].padStart(2, '0')}-${parts[0].padStart(2, '0')}`
+                }
+
+                return {
+                    account_id: accountId,
+                    description: item.description,
+                    amount: item.amount,
+                    transaction_date: isoDate,
+                    category_id: match?.categoryId || null,
+                    status: (match?.isAutoValidated) ? 'validated' : 'pending'
+                }
+            }))
+
+            if (processedToInsert.length > 0) {
+                const { error } = await supabase
+                    .from('transactions')
+                    .insert(processedToInsert)
+
+                if (error) throw error
+            }
+
+            return {
+                importedCount: processedToInsert.length,
+                skippedCount: imported.length - processedToInsert.length,
+                autoValidatedCount: processedToInsert.filter(i => i.status === 'validated').length
+            }
+        } catch (e) {
+            console.error('Failed to import transactions:', e)
+            throw e
+        }
+    },
+
+    async getAllValidatedTransactions(): Promise<Transaction[]> {
+        if (!isConfigured) {
+            return MOCK_DATA.filter(t => t.status === 'validated')
+        }
+
+        try {
+            const { data, error } = await supabase
+                .from('transactions')
+                .select('*, categories(*), profiles!transactions_validated_by_fkey(full_name)')
+                .neq('status', 'pending')
+                .order('transaction_date', { ascending: false })
+
+            if (error) throw error
+
+            return (data || []).map((t: any) => ({
+                id: t.id,
+                description: t.description,
+                amount: Number(t.amount),
+                predicted_category: t.categories?.name || t.predicted_category || 'Inconnu',
+                category_color: t.categories?.color,
+                category_icon: t.categories?.icon,
+                date: new Date(t.transaction_date).toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: 'short'
+                }),
+                raw_date: t.transaction_date,
+                category_id: t.category_id,
+                validated_by: t.validated_by,
+                validated_by_name: t.profiles?.full_name
+            }))
+        } catch (e) {
+            console.error('Failed to fetch all validated transactions:', e)
+            return []
+        }
     }
 }
-
-

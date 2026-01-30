@@ -299,3 +299,91 @@ So that I can reach my projects faster with peace of mind.
 **When** I visit the "Savings" section of the "Analyse" tab
 **Then** I see a recommended savings amount for the current month
 **And** I can transfer this amount conceptually into one of my projects in one click.
+
+## Epic 7: Pilotage Analytique (Analyse Zen) [COMPLETED]
+Offrir des visualisations avancées pour comprendre le fleuve de ses finances.
+
+### Story 7.1: Visualisation de l'Analyse Zen [DONE]
+As a user,
+I want to compare my spending with my habits and see where my energy (money) goes,
+So that I can adjust my lifestyle with awareness.
+
+## Epic 8: Le Majordome Zen (Automatisation IA) [COMPLETED]
+Réduire la charge mentale via l'apprentissage des habitudes.
+
+### Story 8.1: Prédiction & Apprentissage [DONE]
+As a user,
+I want the system to remember my categorizations,
+So that future transactions are automatically associated with the right category.
+
+## Epic 9: Le Rituel de l'Import (Automatisation & Connectivité)
+Faciliter l'entrée de données pour alimenter l'Inbox sans saisie manuelle fastidieuse.
+
+### Story 9.1: Import de Transactions (CSV/JSON)
+As a user,
+I want to import a file from my bank,
+So that my inbox is automatically populated with my actual expenses.
+
+**Acceptance Criteria:**
+- [ ] **Sélecteur de Fichier** : Bouton dans la vue "Inbox" ou "Settings" pour charger un fichier local.
+- [ ] **Mapping Intelligent** : Parser les colonnes (Date, Description, Montant) de manière flexible.
+- [ ] **Détection de Doublons** : Ne pas importer des transactions déjà présentes (basé sur date+montant+desc).
+- [ ] **Populate Inbox** : Les nouvelles transactions apparaissent au sommet de la pile `pending`.
+- [x] Visual Gratification : Animation de "succès" après l'import montrant combien de transactions ont été chargées.
+
+### Story 9.2: Export de Données & Rapports Zen
+As a user,
+I want to export my validated transactions in CSV or PDF format,
+So that I can archive my data or share it with my accountant.
+
+**Acceptance Criteria:**
+- [ ] **Bouton d'Export** : Dans le Dashboard ou les Paramètres, bouton "Exporter mes données".
+- [ ] **Sélecteur de Période** : Choisir le mois ou l'année à exporter.
+- [ ] **Format CSV** : Génération d'un fichier CSV propre et structuré.
+- [ ] **Rapport PDF (Optionnel)** : Un récapitulatif visuel "Zen" de la période.
+
+---
+
+# Epic 10 : ZenVision - La Clairvoyance Financière
+
+Donner à l'utilisateur une vision claire de son avenir financier immédiat en utilisant la puissance de l'automatisation.
+
+## Story 10.1 : Calendrier des Échéances
+
+As a user organisé,
+I want to see a list or calendar of upcoming recurring transactions,
+So that I know exactly when my money will leave my account.
+
+- [ ] Créer `projectionService.ts` pour calculer les dates futures des patterns auto-validés.
+- [ ] Ajouter une vue "Échéances Prochaines" dans le Dashboard.
+- [ ] AC: Les transactions auto-validées sont projetées sur les 30 prochains jours.
+
+## Story 10.2 : Projection du Solde
+
+As a user prévoyant,
+I want to see a line chart predicting my balance over the next 30 days,
+So that I can adjust my spending if needed.
+
+- [ ] Calculer le solde théorique quotidien en combinant solde actuel et projections.
+- [ ] Intégrer un graphique de prévision (ligne en pointillés) dans la vue principale.
+- [ ] AC: Le graphique montre clairement la trajectoire du solde jusqu'à J+30.
+
+## Story 10.3 : Alertes Anti-Découvert
+
+As a user serein,
+I want to be alerted if my projected balance falls below zero,
+So that I can avoid bank fees and stress.
+
+- [ ] Détecter les franchissements de seuil (Zéro ou limite personnalisée).
+- [ ] Afficher une alerte "ZenDanger" critique sur le dashboard si le risque est détecté.
+- [ ] AC: L'alerte indique la date estimée du solde négatif et le montant manquant.
+
+### Story 9.3: Pilotage Automatique (Auto-validation)
+As a "Zen Master" confiant,
+I want to mark recurring transactions to be validated automatically,
+So that I don't have to swipe for my rent and fixed subscriptions every month.
+
+**Acceptance Criteria:**
+- [ ] **Option "Toujours Valider"** : Case à cocher ou toggle lors de la validation d'une transaction récurrente.
+- [ ] **Traitement Background** : Le système valide automatiquement les correspondances exactes dans l'Inbox.
+- [ ] **Résumé Silencieux** : Notification discrète "3 transactions ont été validées pour vous".

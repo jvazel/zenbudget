@@ -4,6 +4,7 @@ export interface TransactionPattern {
     id: string
     pattern_text: string
     category_id: string
+    is_auto_validated: boolean
 }
 
 export const patternService = {
@@ -45,13 +46,13 @@ export const patternService = {
     /**
      * Tries to find a matching category for a transaction description.
      */
-    async findPattern(description: string): Promise<{ categoryId: string, categoryName?: string, categoryIcon?: string, categoryColor?: string } | null> {
+    async findPattern(description: string): Promise<{ categoryId: string, categoryName?: string, categoryIcon?: string, categoryColor?: string, isAutoValidated?: boolean } | null> {
         try {
             // We fetch all patterns for the user (assuming reasonable count < 1000)
             // and do best-match in memory to avoid complex SQL regex for now
             const { data: patterns, error } = await supabase
                 .from('transaction_patterns')
-                .select('pattern_text, category_id, categories(name, icon, color)')
+                .select('pattern_text, category_id, is_auto_validated, categories(name, icon, color)')
 
             if (error) throw error
             if (!patterns || patterns.length === 0) return null
@@ -71,7 +72,8 @@ export const patternService = {
                     categoryId: match.category_id,
                     categoryName: cat?.name,
                     categoryIcon: cat?.icon,
-                    categoryColor: cat?.color
+                    categoryColor: cat?.color,
+                    isAutoValidated: match.is_auto_validated
                 }
             }
 
@@ -79,6 +81,25 @@ export const patternService = {
         } catch (e) {
             console.error('[ZenButler] Failed to find pattern:', e)
             return null
+        }
+    },
+
+    async toggleAutoValidation(patternText: string, enabled: boolean): Promise<boolean> {
+        try {
+            const { data: { user } } = await supabase.auth.getUser()
+            if (!user) return false
+
+            const { error } = await supabase
+                .from('transaction_patterns')
+                .update({ is_auto_validated: enabled })
+                .eq('user_id', user.id)
+                .eq('pattern_text', patternText)
+
+            if (error) throw error
+            return true
+        } catch (e) {
+            console.error('[ZenButler] Failed to toggle auto-validation:', e)
+            return false
         }
     }
 }

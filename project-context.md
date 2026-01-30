@@ -14,11 +14,12 @@ ZenBudget n'est pas un outil de comptabilité, c'est une application de **séré
 *   **Backend/BaaS** : Supabase (Auth, DB, Real-time).
 *   **Partage** : Pilotage Duo 24h via jetons d'accès temporaires et RLS Policies.
 
-## 📍 État Actuel (22 Janvier 2026)
-*   **Phase 1 (Fondations)** : Setup OK, Thème Ocean Calm implémenté.
-*   **Phase 2 (Inbox Zero)** : Moteur de Swipe fonctionnel, Real-time sync avec Supabase opérationnel.
-*   **Phase 3 (Duo Pilot)** : Système d'invitation 24h et authentification démo OK.
-*   **Phase 4 (Dashboard)** : ZenGauge (RAV), ZenDashboard et Navigation implémentés. Build vert 🟢.
+## 📍 État Actuel (31 Janvier 2026)
+*   **Phase 1-4 (Fondations & Dashboard)** : Setup, Thème Ocean Calm, Inbox Zero, Duo Pilot et ZenGauge OK.
+*   **Phase 5 (Sérénité Financière)** : Story 5.3 (Transitions), 5.5 (Recherche/Filtres) OK.
+*   **Phase 6 (Analyses & Manuel)** : Saisie manuelle, ZenAlert, ZenContracts, ZenTrends et ZenSavings implémentés.
+*   **Phase 9-10 (Données & Vision)** : Import/Export (CSV/JSON), Pilotage Auto, Calendrier, Projections et Alertes Découvert OK.
+*   **Phase 11 (Notifications)** : Story 11.1 (Système de Notifications de Sérénité) OK. Build vert (59/59 tests) 🟢.
 
 ## 📜 Règles Critiques pour l'IA
 1.  **Aesthetics First** : Chaque nouveau composant doit respecter le style "glassmorphic" et les animations de `framer-motion`.
@@ -28,5 +29,5 @@ ZenBudget n'est pas un outil de comptabilité, c'est une application de **séré
 
 ## 🚀 Prochaines Étapes
 *   Connecter les flux bancaires réels (Gocardless/Bridge).
-*   Implémenter les notifications de sérénité (Push).
-*   Finaliser la gestion des catégories intelligentes.
+*   Étendre les notifications aux alertes push mobiles.
+*   Finaliser l'onboarding utilisateur complet.

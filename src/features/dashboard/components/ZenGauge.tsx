@@ -1,5 +1,5 @@
-import React from 'react'
-import { motion } from 'framer-motion'
+import { motion, animate } from 'framer-motion'
+import { useEffect, useState, useRef } from 'react'
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 
@@ -14,11 +14,27 @@ interface ZenGaugeProps {
 }
 
 export const ZenGauge: React.FC<ZenGaugeProps> = ({ value, total, className }) => {
+    const [displayValue, setDisplayValue] = useState(value)
+    const prevValueRef = useRef(value)
+
     const percentage = Math.min(Math.max((value / total) * 100, 0), 100)
     const isCritical = percentage < 10
     const radius = 80
     const circumference = 2 * Math.PI * radius
     const strokeDashoffset = circumference - (percentage / 100) * circumference
+
+    // Spring animation for the number
+    useEffect(() => {
+        const controls = animate(prevValueRef.current, value, {
+            duration: 1.5,
+            ease: "easeOut",
+            onUpdate(latest) {
+                setDisplayValue(latest)
+            }
+        })
+        prevValueRef.current = value
+        return () => controls.stop()
+    }, [value])
 
     return (
         <div className={cn("relative flex items-center justify-center", className)}>
@@ -64,7 +80,7 @@ export const ZenGauge: React.FC<ZenGaugeProps> = ({ value, total, className }) =
                         isCritical ? "text-red-400" : "text-white"
                     )}
                 >
-                    {value.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€
+                    {displayValue.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€
                 </motion.span>
                 <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold mt-1">
                     Reste à Vivre

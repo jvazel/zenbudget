@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState, useEffect } from 'react'
 import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion'
-import { Zap, X, Check, ShoppingBag, Coffee, Car, Home, Heart, Sparkles, Tag, TrendingUp } from 'lucide-react'
+import { Zap, X, Check, ShoppingBag, Coffee, Car, Home, Heart, Sparkles, Tag, TrendingUp, RefreshCw } from 'lucide-react'
+import { patternService } from '../../../services/patternService'
 
 export const ICON_MAP: Record<string, any> = {
     Tag,
@@ -20,6 +21,8 @@ function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs))
 }
 
+import { type AnomalyResult } from '../../../services/analysisService'
+
 export interface Transaction {
     id: string
     description: string
@@ -33,6 +36,8 @@ export interface Transaction {
     category_id?: string
     validated_by?: string
     validated_by_name?: string
+    isval_zen_suggestion?: boolean
+    anomaly?: AnomalyResult
 }
 
 interface TransactionCardProps {
@@ -46,6 +51,31 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
     onSwipe,
     isFront
 }) => {
+    const [isAutoValidated, setIsAutoValidated] = useState(false)
+
+    useEffect(() => {
+        const checkAuto = async () => {
+            const match = await patternService.findPattern(transaction.description)
+            if (match?.isAutoValidated) {
+                setIsAutoValidated(true)
+            }
+        }
+        checkAuto()
+    }, [transaction.description])
+
+    const handleToggleAuto = async (e: React.MouseEvent) => {
+        e.stopPropagation()
+        const newState = !isAutoValidated
+        setIsAutoValidated(newState)
+        // Learn pattern first or update it
+        await patternService.learnPattern(transaction.description, transaction.category_id || '')
+        // Then toggle auto
+        const cleanDesc = transaction.description.trim().toUpperCase().replace(/\s+/g, ' ')
+        const words = cleanDesc.split(' ')
+        const patternText = words.length > 1 ? `${words[0]} ${words[1]}` : words[0]
+        await patternService.toggleAutoValidation(patternText, newState)
+    }
+
     const x = useMotionValue(0)
     const rotate = useTransform(x, [-200, 200], [-25, 25])
     const opacity = useTransform(x, [-200, -150, 0, 150, 200], [0, 1, 1, 1, 0])
@@ -92,7 +122,15 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
 
                 <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                        <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Transaction Prédite</p>
+                        <div className="flex items-center space-x-2">
+                            <p className="text-xs text-muted-foreground uppercase tracking-widest font-semibold">Transaction Prédite</p>
+                            {transaction.isval_zen_suggestion && (
+                                <div className="flex items-center space-x-1 bg-yellow-400/10 text-yellow-400 px-2 py-0.5 rounded-full border border-yellow-400/20" title="Suggéré par le Majordome Zen">
+                                    <Sparkles className="w-3 h-3" />
+                                    <span className="text-[10px] font-bold tracking-tight">ZEN</span>
+                                </div>
+                            )}
+                        </div>
                         <h3 className="text-2xl font-bold tracking-tight">{transaction.description}</h3>
                     </div>
                     <div
@@ -127,6 +165,23 @@ export const TransactionCard: React.FC<TransactionCardProps> = ({
                         <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tighter mb-1">Date</p>
                         <p className="text-xs font-medium opacity-60">{transaction.date}</p>
                     </div>
+                </div>
+
+                {/* Auto-validation Toggle */}
+                <div className="absolute top-1/2 left-6 -translate-y-1/2 z-40 bg-white/5 p-1 rounded-2xl border border-white/10 flex flex-col items-center space-y-2 group/auto">
+                    <button
+                        onClick={handleToggleAuto}
+                        className={cn(
+                            "p-3 rounded-xl transition-all duration-300",
+                            isAutoValidated ? "bg-primary text-background" : "bg-white/5 text-white/20 hover:text-white"
+                        )}
+                        title={isAutoValidated ? "Auto-validation activée" : "Activer l'auto-validation"}
+                    >
+                        <RefreshCw className={cn("w-4 h-4", isAutoValidated && "animate-spin-slow")} />
+                    </button>
+                    <span className="text-[8px] font-bold uppercase tracking-tighter text-white/20 opacity-0 group-hover/auto:opacity-100 transition-opacity">
+                        Auto
+                    </span>
                 </div>
 
                 {/* Action hints */}

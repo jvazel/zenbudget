@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { TransactionCard, type Transaction } from './TransactionCard'
-import { ShieldCheck, Zap, Loader2 } from 'lucide-react'
+import { ShieldCheck, Zap, Loader2, Upload, CheckCircle2 } from 'lucide-react'
 import { transactionService } from '../../../services/transactionService'
 import { patternService } from '../../../services/patternService'
+import { importService } from '../../../services/importService'
 import { supabase } from '../../../lib/supabase'
 import { ZenSuccessState } from './ZenSuccessState'
+import { useAuth } from '../../auth/AuthContext'
+import { useNotificationStore } from '../../../stores/useNotificationStore'
 
 interface TransactionStackProps {
     onComplete?: () => void
@@ -14,6 +17,10 @@ interface TransactionStackProps {
 export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }) => {
     const [transactions, setTransactions] = useState<Transaction[]>([])
     const [isLoading, setIsLoading] = useState(true)
+    const [importResult, setImportResult] = useState<{ count: number, skipped: number, auto: number } | null>(null)
+    const [isImporting, setIsImporting] = useState(false)
+    const { addNotification } = useNotificationStore()
+    const { user: currentUser } = useAuth()
 
     useEffect(() => {
         if (transactions.length === 0 && !isLoading && onComplete) {
@@ -53,6 +60,16 @@ export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }
                     }])
                 } else if (payload.eventType === 'UPDATE' || payload.eventType === 'DELETE') {
                     const deletedId = (payload.old as any).id || (payload.new as any).id
+                    const updatedTx = payload.new as any
+
+                    // If it was validated by someone else!
+                    if (updatedTx && updatedTx.status === 'validated' && updatedTx.validated_by !== currentUser?.id) {
+                        addNotification({
+                            message: `${updatedTx.profiles?.full_name || 'Votre partenaire'} a validé une transaction.`,
+                            type: 'zen'
+                        })
+                    }
+
                     setTransactions(prev => prev.filter(t => t.id !== deletedId))
                 }
             })
@@ -81,6 +98,50 @@ export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }
         }
     }
 
+    const handleImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0]
+        if (!file) return
+
+        setIsImporting(true)
+        try {
+            const content = await file.text()
+            let importedData: any[] = []
+
+            if (file.name.endsWith('.json')) {
+                importedData = await importService.parseJSON(content)
+            } else {
+                importedData = await importService.parseCSV(content)
+            }
+
+            const result = await transactionService.importTransactions(importedData)
+            setImportResult({
+                count: result.importedCount,
+                skipped: result.skippedCount,
+                auto: result.autoValidatedCount
+            })
+
+            // Refresh list
+            const data = await transactionService.getPendingTransactions()
+            setTransactions(data)
+
+            // Zen Notification
+            if (result.importedCount > 0) {
+                addNotification({
+                    message: `${result.importedCount} transactions importées. ${result.autoValidatedCount} ont été auto-validées par l'IA 🧘`,
+                    type: 'success'
+                })
+            }
+
+            // Auto hide message
+            setTimeout(() => setImportResult(null), 5000)
+        } catch (err) {
+            alert((err as Error).message)
+        } finally {
+            setIsImporting(false)
+            e.target.value = '' // Reset input
+        }
+    }
+
     if (isLoading) {
         return (
             <div className="w-full h-[420px] flex items-center justify-center">
@@ -91,6 +152,52 @@ export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }
 
     return (
         <div className="w-full flex flex-col items-center space-y-12">
+            {/* Import Header Section */}
+            <div className="w-full max-w-sm flex items-center justify-between px-2">
+                <div className="flex flex-col">
+                    <h2 className="text-white/60 text-[10px] font-bold uppercase tracking-widest">Rituel Inbox</h2>
+                    <p className="text-white/30 text-[9px]">{transactions.length} en attente</p>
+                </div>
+
+                <label className="flex items-center space-x-2 px-3 py-1.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full transition-all cursor-pointer group">
+                    {isImporting ? (
+                        <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                    ) : (
+                        <Upload className="w-3.5 h-3.5 text-primary group-hover:scale-110 transition-transform" />
+                    )}
+                    <span className="text-[10px] text-white/50 font-bold uppercase tracking-tighter">Importer</span>
+                    <input
+                        type="file"
+                        className="hidden"
+                        accept=".csv,.json"
+                        onChange={handleImport}
+                        disabled={isImporting}
+                    />
+                </label>
+            </div>
+
+            <AnimatePresence>
+                {importResult && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        className="w-full max-w-sm bg-primary/20 border border-primary/30 rounded-2xl p-3 flex items-center space-x-3 glass"
+                    >
+                        <div className="bg-primary/20 p-2 rounded-full">
+                            <CheckCircle2 className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="text-[10px] text-white font-medium">Importation réussie !</p>
+                            <p className="text-[9px] text-white/60">
+                                {importResult.count} ajoutées, {importResult.skipped} ignorés.
+                                {importResult.auto > 0 && ` (${importResult.auto} auto-validées 🧘)`}
+                            </p>
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+
             <div className="relative w-full max-w-sm h-[420px] perspective-1000">
                 <AnimatePresence>
                     {transactions.length > 0 ? (
