@@ -1,6 +1,6 @@
 # Story 10.1 : Calendrier des Échéances
 
-Status: completed
+Status: done
 
 ## Story
 
@@ -17,10 +17,10 @@ So that I know exactly when my money will leave my account.
 
 ## Tasks / Subtasks
 
-- [ ] Créer `projectionService.ts` pour générer les dates futures.
-- [ ] Développer le composant `UpcomingExpenses.tsx`.
-- [ ] Intégrer le composant dans `ZenDashboard.tsx`.
-- [ ] Ajouter des tests unitaires pour la logique de projection.
+- [x] Créer `projectionService.ts` pour générer les dates futures.
+- [x] Développer le composant `UpcomingExpenses.tsx`.
+- [x] Intégrer le composant dans `ZenDashboard.tsx`.
+- [x] Ajouter des tests unitaires pour la logique de projection.
 
 ## Dev Notes
 

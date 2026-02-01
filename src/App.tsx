@@ -9,13 +9,16 @@ import { ZenDashboard } from './features/dashboard/components/ZenDashboard'
 import { CategoryManager } from './features/dashboard/components/CategoryManager'
 import { ZenAnalysis } from './features/analysis/components/ZenAnalysis'
 import { ZenToastContainer } from './features/dashboard/components/ZenToastContainer'
+import { OnboardingFlow } from './features/auth/components/OnboardingFlow'
+import { useProfile } from './hooks/useProfile'
 import './App.css'
 
 function App() {
   const { user, loading, signOut } = useAuth()
+  const { profile, loading: profileLoading, refreshProfile } = useProfile()
   const [activeTab, setActiveTab] = useState<'inbox' | 'dashboard' | 'settings' | 'analysis'>('inbox')
 
-  if (loading) {
+  if (loading || (user && profileLoading)) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <motion.div
@@ -84,6 +87,8 @@ function App() {
       <div className={`w-full relative z-20 flex flex-col items-center transition-all duration-500 ${(activeTab === 'dashboard' || activeTab === 'analysis') ? 'max-w-7xl' : 'max-w-lg'}`}>
         {!user ? (
           <ZenLoginForm />
+        ) : profile?.onboarding_completed === false ? (
+          <OnboardingFlow onComplete={refreshProfile} />
         ) : (
           <AnimatePresence mode="wait">
             {activeTab === 'inbox' && (

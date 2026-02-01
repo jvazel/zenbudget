@@ -387,3 +387,20 @@ So that I don't have to swipe for my rent and fixed subscriptions every month.
 - [ ] **Option "Toujours Valider"** : Case à cocher ou toggle lors de la validation d'une transaction récurrente.
 - [ ] **Traitement Background** : Le système valide automatiquement les correspondances exactes dans l'Inbox.
 - [ ] **Résumé Silencieux** : Notification discrète "3 transactions ont été validées pour vous".
+# Epic 13: ZenConnect - Automatisation Bancaire Sereine
+
+Supprimer la friction de l'import manuel en connectant directement les comptes bancaires via Open Banking.
+
+### Story 13.1: Connexion Bancaire Directe (Sync Temps-Réel)
+As a user,
+I want to securely connect my bank account to ZenBudget,
+So that my transactions are automatically synchronized without any manual effort.
+
+**Acceptance Criteria:**
+- [ ] **Contrainte : Solution 100% Gratuit** (GoCardless recommandé).
+- [ ] **Intégration Agrégateur** : Mise en place d'un tunnel de connexion sécurisé conforme à la DSP2.
+- [ ] **Sélection de Compte** : L'utilisateur peut choisir quel compte bancaire synchroniser avec ZenBudget.
+- [ ] **Récupération Historique** : Récupération automatique des 30 derniers jours lors de la première connexion.
+- [ ] **Sync Quotidienne** : Les nouvelles transactions apparaissent automatiquement dans l'Inbox.
+- [ ] **Sécurité** : Consentement conforme à la DSP2 avec renouvellement tous les 90 jours.
+- [ ] **Privacy** : Option de déconnexion et suppression des accès bancaires à tout moment.

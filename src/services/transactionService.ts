@@ -3,6 +3,7 @@ import { type Transaction } from '../features/inbox/components/TransactionCard'
 import { patternService } from './patternService'
 import { analysisService } from './analysisService'
 import { type ImportedTransaction } from './importService'
+import { calculationService } from './calculationService'
 
 const generateMockHistory = (): Transaction[] => {
     const transactions: Transaction[] = []
@@ -242,9 +243,18 @@ export const transactionService = {
 
             if (error) throw error
 
-            const income = data
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('base_monthly_income')
+                .single()
+
+            const baseIncome = Number(profile?.base_monthly_income || 0)
+
+            const incomeFromTxs = data
                 .filter(t => t.amount > 0)
                 .reduce((acc, t) => acc + Number(t.amount), 0)
+
+            const income = incomeFromTxs || baseIncome
 
             const expenses = Math.abs(data
                 .filter(t => t.amount < 0)
@@ -259,7 +269,7 @@ export const transactionService = {
             const totalSavings = (savings || []).reduce((acc, s) => acc + Number(s.current_amount), 0)
 
             // RAV = Income - Expenses - Total Savings
-            const rav = income - expenses - totalSavings
+            const rav = calculationService.calculateRAV(income, expenses, totalSavings)
 
             return { income, expenses, rav }
         } catch (e) {
@@ -279,7 +289,7 @@ export const transactionService = {
                     .filter(t => t.amount < 0)
                     .reduce((acc, t) => acc + t.amount, 0))
 
-                return { income, expenses, rav: income - expenses - 250 } // Mock savings 250
+                return { income, expenses, rav: calculationService.calculateRAV(income, expenses, 250) } // Mock savings 250
             }
             console.error('Failed to calculate dashboard stats:', e)
             return { income: 0, expenses: 0, rav: 0 }

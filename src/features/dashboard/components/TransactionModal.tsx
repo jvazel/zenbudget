@@ -26,24 +26,24 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
     const [isZenSuggestion, setIsZenSuggestion] = useState(false)
 
     useEffect(() => {
-        if (isOpen && transaction) {
-            setType(transaction.amount > 0 ? 'income' : 'expense')
-            setDescription(transaction.description)
-            setAmount(Math.abs(transaction.amount).toString())
-            // Need to handle date formatting if it's from localized string
-            // For now assume transaction.date might need raw fetch if we want accuracy
-            // But let's try to parse if possible or use a default
-            const isoDate = transaction.raw_date ? new Date(transaction.raw_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
-            setDate(isoDate)
-            setSelectedCategoryId(transaction.category_id || '')
-        } else if (isOpen) {
-            // Reset for new transaction
-            setType('expense')
-            setDescription('')
-            setAmount('')
-            setDate(new Date().toISOString().split('T')[0])
-            setSelectedCategoryId('')
-            setIsZenSuggestion(false)
+        if (isOpen) {
+            setError(null)
+            if (transaction) {
+                setType(transaction.amount > 0 ? 'income' : 'expense')
+                setDescription(transaction.description)
+                setAmount(Math.abs(transaction.amount).toString())
+                const isoDate = transaction.raw_date ? new Date(transaction.raw_date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
+                setDate(isoDate)
+                setSelectedCategoryId(transaction.category_id || '')
+            } else {
+                // Reset for new transaction
+                setType('expense')
+                setDescription('')
+                setAmount('')
+                setDate(new Date().toISOString().split('T')[0])
+                setSelectedCategoryId('')
+                setIsZenSuggestion(false)
+            }
         }
     }, [isOpen, transaction])
 

@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ZenGauge } from './ZenGauge'
-import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Plus, ChevronLeft, ChevronRight, Calendar, RotateCcw, AlertTriangle } from 'lucide-react'
+import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Plus, ChevronLeft, ChevronRight, Calendar, RotateCcw, AlertTriangle, Sparkles } from 'lucide-react'
 import { ProjectCard } from './ProjectCard'
 import { UpcomingExpenses } from './UpcomingExpenses'
 import { BalanceProjection } from './BalanceProjection'
+import { ZenGuide } from './ZenGuide'
 import { OverdraftAlert } from './OverdraftAlert'
 import { ProjectModal } from './ProjectModal'
 import { FeedProjectModal } from './FeedProjectModal'
@@ -14,12 +15,20 @@ import { savingsService, type SavingsGoal } from '../../../services/savingsServi
 import { type Transaction, ICON_MAP } from '../../inbox/components/TransactionCard'
 import { supabase } from '../../../lib/supabase'
 import { useDateStore } from '../../../stores/useDateStore'
+import { TransactionFilters } from './TransactionFilters'
+import { categoryService, type Category } from '../../../services/categoryService'
 
 const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
     const IconComponent = transaction.category_icon ? (ICON_MAP[transaction.category_icon] || (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)) : (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)
+    const isAnomaly = transaction.anomaly?.isAnomaly
 
     return (
-        <div className="p-4 bg-white/5 hover:bg-white/10 hover:border-white/20 border border-white/5 rounded-2xl flex items-center justify-between transition-all group cursor-pointer active:scale-[0.98]">
+        <div
+            className={`p-4 bg-white/5 hover:bg-white/10 border rounded-2xl flex items-center justify-between transition-all group cursor-pointer active:scale-[0.98] ${isAnomaly
+                    ? 'border-red-500/30 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+                    : 'border-white/5 hover:border-white/20'
+                }`}
+        >
             <div className="flex items-center space-x-4">
                 <div
                     className="w-10 h-10 rounded-2xl flex items-center justify-center"
@@ -31,15 +40,21 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
                     />
                 </div>
                 <div>
-                    <p className="text-sm font-bold flex items-center space-x-2">
-                        <span>{transaction.description}</span>
-                        {transaction.anomaly?.isAnomaly && (
-                            <div className="flex items-center space-x-1 bg-red-500/10 text-red-500 px-1.5 py-0.5 rounded-full border border-red-500/20">
+                    <div className="flex items-center space-x-2">
+                        <p className="text-sm font-bold">{transaction.description}</p>
+                        {isAnomaly && (
+                            <motion.div
+                                initial={{ scale: 1 }}
+                                animate={{ scale: [1, 1.05, 1] }}
+                                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                                title={`+${Math.round(transaction.anomaly?.difference || 0)}% par rapport à d'habitude`}
+                                className="flex items-center space-x-1 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full border border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.4)]"
+                            >
                                 <AlertTriangle className="w-3 h-3" />
                                 <span className="text-[10px] font-bold tracking-tight">ZENALERT</span>
-                            </div>
+                            </motion.div>
                         )}
-                    </p>
+                    </div>
                     <p className="text-[10px] text-muted-foreground flex items-center space-x-1">
                         <span>{transaction.date}</span>
                         <span className="opacity-20">•</span>
@@ -47,8 +62,9 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
                     </p>
                 </div>
             </div>
-            <p className={`text-sm font-mono font-bold ${transaction.amount > 0 ? 'text-green-500' : (transaction.anomaly?.isAnomaly ? 'text-red-500' : '')}`}>
-                {transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€
+            <p className={`text-sm font-mono font-bold flex items-center space-x-2 ${transaction.amount > 0 ? 'text-green-500' : (isAnomaly ? 'text-red-500' : '')}`}>
+                {isAnomaly && <Sparkles className="w-3 h-3 animate-pulse text-red-400" />}
+                <span>{transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
             </p>
         </div>
     )
@@ -59,6 +75,7 @@ export const ZenDashboard: React.FC = () => {
 
     const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([])
     const [savingsGoals, setSavingsGoals] = useState<SavingsGoal[]>([])
+    const [categories, setCategories] = useState<Category[]>([])
     const [totals, setTotals] = useState({ income: 0, expenses: 0, rav: 0 })
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false)
@@ -71,28 +88,45 @@ export const ZenDashboard: React.FC = () => {
     // Filter State
     const [filters, setFilters] = useState({ search: '', categoryId: 'all' })
 
-    const openEditModal = (t: any) => {
+    const handleOpenTransactionModal = (t: any = null) => {
         setEditingTransaction(t)
         setIsModalOpen(true)
     }
 
     const loadDashboardData = async (date: Date) => {
-        const stats = await transactionService.getDashboardStats(date)
-        setTotals(stats)
+        try {
+            const stats = await transactionService.getDashboardStats(date)
+            setTotals(stats)
 
-        const recent = await transactionService.getValidatedTransactions(date)
-        setRecentTransactions(recent)
+            const recent = await transactionService.getValidatedTransactions(date)
+            setRecentTransactions(recent)
 
-        const savings = await savingsService.getSavingsGoals()
-        setSavingsGoals(savings)
+            const savings = await savingsService.getSavingsGoals()
+            setSavingsGoals(savings)
+        } catch (error) {
+            console.error('Error loading dashboard data:', error)
+        }
+    }
+
+    const loadCategories = async () => {
+        try {
+            const cats = await categoryService.getCategories()
+            console.log('Categories loaded:', cats)
+            setCategories(cats || [])
+        } catch (error) {
+            console.error('Error loading categories:', error)
+        }
     }
 
     useEffect(() => {
         loadDashboardData(selectedDate)
+        loadCategories()
+
         const channel = supabase
             .channel('dashboard-updates')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, () => loadDashboardData(selectedDate))
             .on('postgres_changes', { event: '*', schema: 'public', table: 'savings_goals' }, () => loadDashboardData(selectedDate))
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'categories' }, () => loadCategories())
             .subscribe()
 
         return () => { supabase.removeChannel(channel) }
@@ -189,18 +223,20 @@ export const ZenDashboard: React.FC = () => {
                     </motion.div>
                 </div>
 
-                <div className="space-y-4">
-                    <div className="flex items-center justify-between px-2">
-                        <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">Historique</h3>
-                        <div className="flex items-center space-x-2">
-                            <input
-                                type="text"
-                                placeholder="Rechercher..."
-                                value={filters.search}
-                                onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
-                                className="bg-white/5 border border-white/5 rounded-full px-4 py-1.5 text-xs focus:outline-none focus:border-primary/50 transition-colors w-48"
-                            />
+                <div className="space-y-6">
+                    <div className="flex flex-col space-y-4 px-2">
+                        <div className="flex items-center justify-between">
+                            <h3 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">Historique des flux</h3>
+                            <span className="text-[10px] text-primary/40 font-bold uppercase tracking-widest">{filteredTransactions.length} transaction(s)</span>
                         </div>
+
+                        <TransactionFilters
+                            search={filters.search}
+                            onSearchChange={(search) => setFilters(prev => ({ ...prev, search }))}
+                            categoryId={filters.categoryId}
+                            onCategoryChange={(categoryId) => setFilters(prev => ({ ...prev, categoryId }))}
+                            categories={categories}
+                        />
                     </div>
                     <div className="space-y-3">
                         <AnimatePresence mode="popLayout">
@@ -211,7 +247,7 @@ export const ZenDashboard: React.FC = () => {
                                     animate={{ opacity: 1, scale: 1 }}
                                     exit={{ opacity: 0, scale: 0.95 }}
                                     className="glass p-12 rounded-3xl text-center space-y-4 cursor-pointer hover:bg-white/5 transition-colors group"
-                                    onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }}
+                                    onClick={() => handleOpenTransactionModal()}
                                 >
                                     <Plus className="w-12 h-12 text-primary mx-auto group-hover:scale-110 transition-transform" />
                                     <p className="text-sm text-white/40">Aucune transaction ce mois-ci.<br /><span className="text-primary text-xs font-bold uppercase tracking-widest mt-2 block">Cliquez pour ajouter</span></p>
@@ -229,7 +265,7 @@ export const ZenDashboard: React.FC = () => {
                                             ease: "easeOut"
                                         }}
                                         layout
-                                        onClick={() => openEditModal(tx)}
+                                        onClick={() => handleOpenTransactionModal(tx)}
                                     >
                                         <TransactionItem transaction={tx} />
                                     </motion.div>
@@ -257,7 +293,8 @@ export const ZenDashboard: React.FC = () => {
             </div>
 
             {/* Right Column: Upcoming & Vision */}
-            <div className="space-y-8">
+            <div className="space-y-8 lg:col-span-1">
+                <ZenGuide transactionCount={recentTransactions.length} />
                 <OverdraftAlert />
                 <BalanceProjection />
                 <UpcomingExpenses />
@@ -267,7 +304,7 @@ export const ZenDashboard: React.FC = () => {
             <motion.button
                 whileHover={{ scale: 1.1, rotate: 90 }}
                 whileTap={{ scale: 0.9 }}
-                onClick={() => { setEditingTransaction(null); setIsModalOpen(true); }}
+                onClick={() => handleOpenTransactionModal()}
                 className="fixed bottom-8 right-8 md:bottom-12 md:right-12 w-16 h-16 bg-primary text-background rounded-full shadow-2xl flex items-center justify-center z-[100] ring-4 ring-primary/20 hover:ring-primary/40 transition-all"
                 title="Ajouter une transaction"
             >

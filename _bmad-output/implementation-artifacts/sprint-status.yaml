@@ -72,14 +72,14 @@ development_status:
   5-5-recherche-et-filtrage-de-transactions: done
   epic-5-retrospective: optional
 
-  epic-6: in-progress
+  epic-6: done
   6-1-saisie-manuelle-de-transactions: done
   6-1-detecteur-d-anomalies-zenalert: done
   6-2-typage-des-categories: done
   6-2-audit-des-abonnements-zencontracts: done
   6-3-tendances-inflation-zentrends: done
   6-4-calcul-du-potentiel-d-epargne-zensavings: done
-  epic-6-retrospective: optional
+  epic-6-retrospective: done
 
   epic-7: done
   7-1-analyse-zen: done
@@ -95,10 +95,19 @@ development_status:
   9-3-pilotage-automatique-auto-validation: done
   epic-9-retrospective: done
 
-  epic-10: upcoming
-  10-1-calendrier-des-echeances: completed
-  10-2-projection-du-solde: completed
-  10-3-alertes-anti-decouvert: completed
+  epic-10: in-progress
+  10-1-calendrier-des-echeances: done
+  10-2-projection-du-solde: done
+  10-3-alertes-anti-decouvert: done
 
-  epic-11: in-progress
-  11-1-systeme-de-notifications-de-serenite: in-progress
+  epic-11: done
+  11-1-systeme-de-notifications-de-serenite: done
+
+  epic-12: done
+  12-1-flux-d-onboarding: done
+  12-2-le-guide-zen-du-dashboard: done
+  epic-12-retrospective: optional
++
++  epic-13: backlog
++  13-1-connexion-bancaire-directe: backlog
++  epic-13-retrospective: optional
