@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LogOut, User as UserIcon, LayoutDashboard, Inbox, Settings, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Inbox, Settings, BarChart3 } from 'lucide-react'
 import { TransactionStack } from './features/inbox/components/TransactionStack'
 import { useAuth } from './features/auth/AuthContext'
 import { ZenLoginForm } from './features/auth/ZenLoginForm'
@@ -14,7 +14,7 @@ import { useProfile } from './hooks/useProfile'
 import './App.css'
 
 function App() {
-  const { user, loading, signOut } = useAuth()
+  const { user, loading } = useAuth()
   const { profile, loading: profileLoading, refreshProfile } = useProfile()
   const [activeTab, setActiveTab] = useState<'inbox' | 'dashboard' | 'settings' | 'analysis'>('inbox')
 
@@ -46,21 +46,6 @@ function App() {
       >
         <div className="flex items-center space-x-2 text-white/40 text-xs font-bold uppercase tracking-tighter">
         </div>
-
-        {user && (
-          <div className="flex items-center space-x-4 pointer-events-auto">
-            <div className="flex items-center space-x-2 px-3 py-1 bg-white/5 rounded-full border border-white/10 glass">
-              <UserIcon className="w-3 h-3 text-primary" />
-              <span className="text-[10px] text-white/60 font-medium truncate max-w-[100px]">{user.email}</span>
-            </div>
-            <button
-              onClick={signOut}
-              className="p-2 hover:bg-white/5 rounded-full transition-colors text-white/40 hover:text-white"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
-          </div>
-        )}
       </motion.div>
 
       {/* Hero Header */}

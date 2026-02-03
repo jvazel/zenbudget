@@ -1,5 +1,5 @@
 import React from 'react'
-import { Search, X, Filter } from 'lucide-react'
+import { Search, X, Filter, Check } from 'lucide-react'
 import { type Category } from '../../../services/categoryService'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -8,6 +8,8 @@ interface TransactionFiltersProps {
     onSearchChange: (value: string) => void
     categoryId: string
     onCategoryChange: (id: string) => void
+    checkStatus: 'all' | 'checked' | 'unchecked'
+    onCheckStatusChange: (status: 'all' | 'checked' | 'unchecked') => void
     categories: Category[]
 }
 
@@ -16,13 +18,16 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
     onSearchChange,
     categoryId,
     onCategoryChange,
+    checkStatus,
+    onCheckStatusChange,
     categories
 }) => {
-    const hasActiveFilters = search !== '' || categoryId !== 'all'
+    const hasActiveFilters = search !== '' || categoryId !== 'all' || checkStatus !== 'all'
 
     const clearFilters = () => {
         onSearchChange('')
         onCategoryChange('all')
+        onCheckStatusChange('all')
     }
 
     return (
@@ -61,6 +66,19 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                         )}
                     </select>
                     <Filter className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
+                </div>
+
+                <div className="relative flex-1 md:flex-none">
+                    <select
+                        value={checkStatus}
+                        onChange={(e) => onCheckStatusChange(e.target.value as any)}
+                        className="w-full md:w-40 bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary/30 appearance-none cursor-pointer hover:bg-white/10 transition-all text-white/60 font-medium"
+                    >
+                        <option value="all" className="bg-[#0f172a] text-white">Tous états</option>
+                        <option value="checked" className="bg-[#0f172a] text-white">Pointées</option>
+                        <option value="unchecked" className="bg-[#0f172a] text-white">Non pointées</option>
+                    </select>
+                    <Check className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
                 </div>
 
                 <AnimatePresence>

@@ -97,7 +97,14 @@ const generateMockHistory = (): Transaction[] => {
         { id: 'p-5', description: 'Spotify', amount: -10.99, predicted_category: 'Loisirs', category_icon: 'Sparkles', category_color: '#f59e0b', date: now.toLocaleDateString(), raw_date: now.toISOString(), status: 'pending', category_id: '' }
     ]
 
-    return [...transactions, ...pendingMocks]
+    // Specific Fee Mocks for testing ZenFees
+    const feeMocks: Transaction[] = [
+        { id: 'f-1', description: 'Commission d\'intervention', amount: -8.50, predicted_category: 'Banque', category_icon: 'ShieldAlert', category_color: '#94a3b8', date: now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }), raw_date: now.toISOString(), status: 'validated', category_id: 'cat-bank' },
+        { id: 'f-2', description: 'Cotisation pack Zen', amount: -12.90, predicted_category: 'Banque', category_icon: 'ShieldAlert', category_color: '#94a3b8', date: now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }), raw_date: now.toISOString(), status: 'validated', category_id: 'cat-bank' },
+        { id: 'f-3', description: 'Frais de tenue de compte', amount: -2.00, predicted_category: 'Banque', category_icon: 'ShieldAlert', category_color: '#94a3b8', date: now.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }), raw_date: now.toISOString(), status: 'validated', category_id: 'cat-bank' }
+    ]
+
+    return [...transactions, ...pendingMocks, ...feeMocks]
 }
 
 const MOCK_DATA = generateMockHistory()
@@ -132,7 +139,8 @@ export const transactionService = {
                 }),
                 validated_by: t.validated_by,
                 validated_by_name: t.profiles?.full_name,
-                category_id: t.category_id
+                category_id: t.category_id,
+                is_checked: t.is_checked
             }))
 
             // Apply Zen Butler Suggestions
@@ -228,7 +236,7 @@ export const transactionService = {
                 raw_date: t.transaction_date,
                 category_id: t.category_id,
                 validated_by: t.validated_by,
-                validated_by_name: t.profiles?.full_name
+                validated_by_name: t.profiles?.full_name, is_checked: t.is_checked
             }))
 
             // Detect Anomalies for the list
@@ -730,11 +738,54 @@ export const transactionService = {
                 raw_date: t.transaction_date,
                 category_id: t.category_id,
                 validated_by: t.validated_by,
-                validated_by_name: t.profiles?.full_name
+                validated_by_name: t.profiles?.full_name, is_checked: t.is_checked
             }))
         } catch (e) {
             console.error('Failed to fetch all validated transactions:', e)
             return []
+        }
+    },
+
+    async toggleTransactionCheck(id: string, isChecked: boolean): Promise<void> {
+        if (!isConfigured) {
+            const tx = MOCK_DATA.find(t => t.id === id)
+            if (tx) tx.is_checked = isChecked
+            return
+        }
+
+        try {
+            const { error } = await supabase
+                .from('transactions')
+                .update({ is_checked: isChecked })
+                .eq('id', id)
+
+            if (error) throw error
+        } catch (e) {
+            console.error('Failed to toggle transaction check:', e)
+            throw e
+        }
+    },
+
+    async getBankingFees(): Promise<{
+        totalMonthly: number,
+        projectedAnnual: number,
+        transactions: Transaction[]
+    }> {
+        const allValidated = await this.getAllValidatedTransactions()
+        const feeKeywords = ['commission', 'agios', 'frais', 'cotisation', 'interets debiteurs', 'tenue de compte']
+
+        const fees = allValidated.filter(t => {
+            const desc = t.description.toLowerCase()
+            return t.amount < 0 && feeKeywords.some(kw => desc.includes(kw))
+        })
+
+        const totalMonthly = Math.abs(fees.reduce((sum, f) => sum + f.amount, 0))
+        const projectedAnnual = totalMonthly * 12
+
+        return {
+            totalMonthly,
+            projectedAnnual,
+            transactions: fees
         }
     }
 }

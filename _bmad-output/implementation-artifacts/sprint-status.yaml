@@ -111,3 +111,12 @@ development_status:
   epic-13: done
   13-1-connexion-bancaire-directe: done
   epic-13-retrospective: done
+
+  epic-14: done
+  14-1-moteur-de-simulation-zenvision: done
+  epic-14-retrospective: optional
+
+  epic-15: in-progress
+  15-2-audit-des-frais-zenfees: done
+  15-5-pointage-des-transactions-zenreconcile: done
+  epic-15-retrospective: optional

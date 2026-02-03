@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ZenGauge } from './ZenGauge'
-import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Plus, ChevronLeft, ChevronRight, Calendar, RotateCcw, AlertTriangle, Sparkles } from 'lucide-react'
+import { TrendingUp, Wallet, ArrowUpRight, ArrowDownRight, Plus, ChevronLeft, ChevronRight, Calendar, RotateCcw, AlertTriangle, Sparkles, Check } from 'lucide-react'
 import { ProjectCard } from './ProjectCard'
 import { UpcomingExpenses } from './UpcomingExpenses'
 import { BalanceProjection } from './BalanceProjection'
@@ -22,7 +22,7 @@ import { categoryService, type Category } from '../../../services/categoryServic
 import { AccountMappingModal } from './AccountMappingModal'
 import { SimulationPanel } from './SimulationPanel'
 
-const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
+const TransactionItem: React.FC<{ transaction: Transaction; onToggleCheck: (e: React.MouseEvent) => void }> = ({ transaction, onToggleCheck }) => {
     const IconComponent = transaction.category_icon ? (ICON_MAP[transaction.category_icon] || (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)) : (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)
     const isAnomaly = transaction.anomaly?.isAnomaly
 
@@ -33,9 +33,9 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
                 : 'border-white/5 hover:border-white/20'
                 }`}
         >
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-4 flex-1 min-w-0">
                 <div
-                    className="w-10 h-10 rounded-2xl flex items-center justify-center"
+                    className="w-10 h-10 rounded-2xl flex items-center justify-center shrink-0"
                     style={{ backgroundColor: transaction.category_color ? `${transaction.category_color}15` : (transaction.amount > 0 ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255, 255, 255, 0.05)') }}
                 >
                     <IconComponent
@@ -43,16 +43,16 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
                         style={{ color: transaction.category_color || (transaction.amount > 0 ? '#22c55e' : 'rgba(255, 255, 255, 0.4)') }}
                     />
                 </div>
-                <div>
+                <div className="flex-1 min-w-0">
                     <div className="flex items-center space-x-2">
-                        <p className="text-sm font-bold">{transaction.description}</p>
+                        <p className="text-sm font-bold truncate">{transaction.description}</p>
                         {isAnomaly && (
                             <motion.div
                                 initial={{ scale: 1 }}
                                 animate={{ scale: [1, 1.05, 1] }}
                                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                                 title={`+${Math.round(transaction.anomaly?.difference || 0)}% par rapport à d'habitude`}
-                                className="flex items-center space-x-1 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full border border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.4)]"
+                                className="flex items-center space-x-1 bg-gradient-to-r from-red-500 to-orange-500 text-white px-2 py-0.5 rounded-full border border-red-400 shadow-[0_0_10px_rgba(239,68,68,0.4)] shrink-0"
                             >
                                 <AlertTriangle className="w-3 h-3" />
                                 <span className="text-[10px] font-bold tracking-tight">ZENALERT</span>
@@ -62,14 +62,24 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
                     <p className="text-[10px] text-muted-foreground flex items-center space-x-1">
                         <span>{transaction.date}</span>
                         <span className="opacity-20">•</span>
-                        <span style={{ color: transaction.category_color || 'inherit' }} className="font-semibold">{transaction.predicted_category}</span>
+                        <span style={{ color: transaction.category_color || 'inherit' }} className="font-semibold truncate">{transaction.predicted_category}</span>
                     </p>
                 </div>
             </div>
-            <p className={`text-sm font-mono font-bold flex items-center space-x-2 ${transaction.amount > 0 ? 'text-green-500' : (isAnomaly ? 'text-red-500' : '')}`}>
-                {isAnomaly && <Sparkles className="w-3 h-3 animate-pulse text-red-400" />}
-                <span>{transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
-            </p>
+            <div className="flex items-center justify-end w-32 border-l border-white/5 ml-4 pl-4 shrink-0">
+                <p className={`text-sm font-mono font-bold flex items-center space-x-2 ${transaction.amount > 0 ? 'text-green-500' : (isAnomaly ? 'text-red-500' : '')}`}>
+                    {isAnomaly && <Sparkles className="w-3 h-3 animate-pulse text-red-400" />}
+                    <span>{transaction.amount > 0 ? '+' : ''}{transaction.amount.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}€</span>
+                </p>
+            </div>
+
+            <button
+                onClick={onToggleCheck}
+                className={`ml-4 p-2 rounded-xl border transition-all ${transaction.is_checked ? 'bg-green-500/20 border-green-500/30 text-green-500' : 'bg-white/5 border-white/5 text-white/10 hover:text-white/40 hover:bg-white/10'}`}
+                title={transaction.is_checked ? "Transaction pointée" : "Pointer la transaction"}
+            >
+                <Check className={`w-4 h-4 ${transaction.is_checked ? 'scale-110' : 'scale-90 opacity-40'}`} />
+            </button>
         </div>
     )
 }
@@ -90,7 +100,11 @@ export const ZenDashboard: React.FC = () => {
     const [isFeedModalOpen, setIsFeedModalOpen] = useState(false)
 
     // Filter State
-    const [filters, setFilters] = useState({ search: '', categoryId: 'all' })
+    const [filters, setFilters] = useState({
+        search: '',
+        categoryId: 'all',
+        checkStatus: 'all' as 'all' | 'checked' | 'unchecked'
+    })
 
     const handleOpenTransactionModal = (t: any = null) => {
         setEditingTransaction(t)
@@ -195,10 +209,33 @@ export const ZenDashboard: React.FC = () => {
         await savingsService.updateSavingsAmount(feedingProject.id, amount)
     }
 
+    const handleToggleCheck = async (e: React.MouseEvent, transaction: Transaction) => {
+        e.stopPropagation()
+        const newChecked = !transaction.is_checked
+
+        // Optimistic UI update
+        setRecentTransactions(prev => prev.map(t =>
+            t.id === transaction.id ? { ...t, is_checked: newChecked } : t
+        ))
+
+        try {
+            await transactionService.toggleTransactionCheck(transaction.id, newChecked)
+        } catch (error) {
+            // Revert on error
+            setRecentTransactions(prev => prev.map(t =>
+                t.id === transaction.id ? { ...t, is_checked: !newChecked } : t
+            ))
+            console.error('Failed to toggle check:', error)
+        }
+    }
+
     const filteredTransactions = recentTransactions.filter(t => {
         const matchesSearch = t.description.toLowerCase().includes(filters.search.toLowerCase())
         const matchesCategory = filters.categoryId === 'all' || t.category_id === filters.categoryId
-        return matchesSearch && matchesCategory
+        const matchesCheck = filters.checkStatus === 'all' ||
+            (filters.checkStatus === 'checked' ? t.is_checked : !t.is_checked)
+
+        return matchesSearch && matchesCategory && matchesCheck
     })
 
     return (
@@ -279,6 +316,8 @@ export const ZenDashboard: React.FC = () => {
                             onSearchChange={(search) => setFilters(prev => ({ ...prev, search }))}
                             categoryId={filters.categoryId}
                             onCategoryChange={(categoryId) => setFilters(prev => ({ ...prev, categoryId }))}
+                            checkStatus={filters.checkStatus}
+                            onCheckStatusChange={(checkStatus) => setFilters(prev => ({ ...prev, checkStatus }))}
                             categories={categories}
                         />
                     </div>
@@ -311,7 +350,10 @@ export const ZenDashboard: React.FC = () => {
                                         layout
                                         onClick={() => handleOpenTransactionModal(tx)}
                                     >
-                                        <TransactionItem transaction={tx} />
+                                        <TransactionItem
+                                            transaction={tx}
+                                            onToggleCheck={(e) => handleToggleCheck(e, tx)}
+                                        />
                                     </motion.div>
                                 ))
                             )}

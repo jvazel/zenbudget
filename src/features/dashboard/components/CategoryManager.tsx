@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Tag, Plus, Trash2, X, Sparkles, ShoppingBag, Coffee, Car, Home, Heart, Download, Shield } from 'lucide-react'
+import { Tag, Plus, Trash2, X, Sparkles, ShoppingBag, Coffee, Car, Home, Heart, Download, Shield, LogOut, User as UserIcon } from 'lucide-react'
 import { categoryService, type Category } from '../../../services/categoryService'
 import { transactionService } from '../../../services/transactionService'
 import { exportService } from '../../../services/exportService'
+import { useAuth } from '../../auth/AuthContext'
 
 const PRESET_ICONS = [
     { name: 'Tag', icon: Tag },
@@ -26,6 +27,7 @@ const PRESET_COLORS = [
 ]
 
 export const CategoryManager: React.FC = () => {
+    const { user, signOut } = useAuth()
     const [categories, setCategories] = useState<Category[]>([])
     const [isAdding, setIsAdding] = useState(false)
     const [isLoading, setIsLoading] = useState(true)
@@ -112,6 +114,37 @@ export const CategoryManager: React.FC = () => {
 
     return (
         <div className="w-full max-w-md mx-auto space-y-8">
+            {/* User Account Section */}
+            {user && (
+                <div className="space-y-4">
+                    <div className="flex items-center space-x-2 px-2">
+                        <UserIcon className="w-3.5 h-3.5 text-white/40" />
+                        <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest">Mon Compte</h3>
+                    </div>
+                    <motion.div
+                        whileHover={{ scale: 1.01 }}
+                        className="glass p-6 rounded-3xl border border-white/5 flex items-center justify-between"
+                    >
+                        <div className="flex items-center space-x-4 min-w-0">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                                <UserIcon className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-bold text-white truncate">{user.email}</p>
+                                <p className="text-[10px] text-white/40 uppercase font-bold tracking-tighter">Utilisateur Zen</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={signOut}
+                            className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all group"
+                            title="Se déconnecter"
+                        >
+                            <LogOut className="w-5 h-5 text-white/40 group-hover:text-red-400 transition-colors" />
+                        </button>
+                    </motion.div>
+                </div>
+            )}
+
             <div className="flex justify-between items-center px-2">
                 <h3 className="text-xl font-bold text-white">Gestion des Catégories</h3>
                 <motion.button

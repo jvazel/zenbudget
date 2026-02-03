@@ -188,4 +188,20 @@ describe('transactionService', () => {
             expect(insertedData[0].category_id).toBe('cat-auto')
         })
     })
+
+    describe('toggleTransactionCheck', () => {
+        it('updates is_checked in Supabase', async () => {
+            const updateFn = vi.fn().mockReturnValue({ eq: () => Promise.resolve({ error: null }) })
+            mockSupabase.from.mockImplementation((table: string) => {
+                if (table === 'transactions') {
+                    return { update: updateFn }
+                }
+                return {}
+            })
+
+            await transactionService.toggleTransactionCheck('tx-1', true)
+
+            expect(updateFn).toHaveBeenCalledWith({ is_checked: true })
+        })
+    })
 })

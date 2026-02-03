@@ -6,7 +6,8 @@ import { describe, it, expect, vi } from 'vitest'
 vi.mock('lucide-react', () => ({
     Search: () => <div data-testid="search-icon" />,
     X: () => <div data-testid="x-icon" />,
-    Filter: () => <div data-testid="filter-icon" />
+    Filter: () => <div data-testid="filter-icon" />,
+    Check: () => <div data-testid="check-icon" />
 }))
 
 // Mock framer-motion
@@ -20,58 +21,57 @@ vi.mock('framer-motion', () => ({
 
 describe('TransactionFilters', () => {
     const defaultProps = {
-        searchQuery: '',
-        setSearchQuery: vi.fn(),
-        selectedCategoryIds: [],
-        setSelectedCategoryIds: vi.fn(),
+        search: '',
+        onSearchChange: vi.fn(),
+        categoryId: 'all',
+        onCategoryChange: vi.fn(),
+        checkStatus: 'all' as const,
+        onCheckStatusChange: vi.fn(),
         categories: [
             { id: 'cat-1', name: 'Alimentation', icon: 'food', color: '#ff0000', owner_id: 'user-1', budget_limit: 500, type: 'expense' as const, created_at: new Date().toISOString() },
             { id: 'cat-2', name: 'Loisirs', icon: 'fun', color: '#00ff00', owner_id: 'user-1', budget_limit: 200, type: 'expense' as const, created_at: new Date().toISOString() }
-        ],
-        showFilters: true,
-        setShowFilters: vi.fn()
+        ]
     }
 
-    it('renders search input when showFilters is true', () => {
+    it('renders search input', () => {
         render(<TransactionFilters {...defaultProps} />)
         expect(screen.getByPlaceholderText('Rechercher une transaction...')).toBeInTheDocument()
     })
 
-    it('calls setSearchQuery when typing in the search input', () => {
+    it('calls onSearchChange when typing in the search input', () => {
         render(<TransactionFilters {...defaultProps} />)
         const input = screen.getByPlaceholderText('Rechercher une transaction...')
         fireEvent.change(input, { target: { value: 'Courses' } })
-        expect(defaultProps.setSearchQuery).toHaveBeenCalledWith('Courses')
+        expect(defaultProps.onSearchChange).toHaveBeenCalledWith('Courses')
     })
 
-    it('renders category chips and calls setSelectedCategoryIds on click', () => {
+    it('calls onCategoryChange when choosing a category', () => {
         render(<TransactionFilters {...defaultProps} />)
-        const chip = screen.getByText('Alimentation')
-        fireEvent.click(chip)
-
-        // Check if the state update function is called
-        expect(defaultProps.setSelectedCategoryIds).toHaveBeenCalled()
-        const updateFn = (defaultProps.setSelectedCategoryIds as any).mock.calls[0][0]
-        expect(updateFn([])).toEqual(['cat-1'])
+        const categorySelect = screen.getAllByRole('combobox')[0]
+        fireEvent.change(categorySelect, { target: { value: 'cat-1' } })
+        expect(defaultProps.onCategoryChange).toHaveBeenCalledWith('cat-1')
     })
 
-    it('calls clear filters when "Effacer les filtres" is clicked', () => {
+    it('calls onCheckStatusChange when choosing a check status', () => {
+        render(<TransactionFilters {...defaultProps} />)
+        const checkSelect = screen.getAllByRole('combobox')[1]
+        fireEvent.change(checkSelect, { target: { value: 'checked' } })
+        expect(defaultProps.onCheckStatusChange).toHaveBeenCalledWith('checked')
+    })
+
+    it('calls clear filters reset and calls all change handlers', () => {
         const propsWithFilters = {
             ...defaultProps,
-            searchQuery: 'Some query'
+            search: 'Some query',
+            categoryId: 'cat-1',
+            checkStatus: 'checked' as const
         }
         render(<TransactionFilters {...propsWithFilters} />)
-        const clearBtn = screen.getByText('Effacer les filtres')
+        const clearBtn = screen.getByTitle('Réinitialiser les filtres')
         fireEvent.click(clearBtn)
 
-        expect(defaultProps.setSearchQuery).toHaveBeenCalledWith('')
-        expect(defaultProps.setSelectedCategoryIds).toHaveBeenCalledWith([])
-    })
-
-    it('toggles filters visibility when clicking filter icon', () => {
-        render(<TransactionFilters {...defaultProps} />)
-        const filterBtn = screen.getByTestId('filter-icon').parentElement!
-        fireEvent.click(filterBtn)
-        expect(defaultProps.setShowFilters).toHaveBeenCalledWith(false)
+        expect(defaultProps.onSearchChange).toHaveBeenCalledWith('')
+        expect(defaultProps.onCategoryChange).toHaveBeenCalledWith('all')
+        expect(defaultProps.onCheckStatusChange).toHaveBeenCalledWith('all')
     })
 })
