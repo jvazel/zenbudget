@@ -6,8 +6,9 @@
 - **Inbox Zero** : Validez vos transactions d'un simple geste (Swipe).
 - **Reste à Vivre (RAV)** : Une jauge unique pour savoir exactement ce que vous pouvez dépenser.
 - **Duo Pilot** : Partagez votre budget avec votre partenaire en un clic (fenêtre de 24h sécurisée).
-- **Zen Notifications** : Soyez informé en temps réel des actions de votre partenaire et des automatisations IA.
-- **Analyses de Sérénité** : ZenAlert, ZenTrends et ZenSavings pour anticiper et épargner sans effort.
+- **Zen Notifications** : Soyez informé des actions de votre partenaire et recevez des conseils proactifs (Zen Infos).
+- **Analyses de Sérénité** : Zen Tendances, Zen Alerte (Découvert) et Zen Épargne pour anticiper sans effort.
+- **ZenMobile (PWA)** : Installez l'application sur votre mobile pour un accès hors-ligne et instantané.
 
 ## 🛠️ Stack Technique
 - **Frontend** : React 19 + TypeScript + Vite 7
@@ -41,9 +42,12 @@
    ```
 
 ## 📈 Fonctionnalités Avancées
-- **Zen Analysis** : Suite complète (Voyage Temporel, Fuites d'Énergie, Fleuve des Flux) pour comprendre ses habitudes.
-- **ZenAlert** : Détection intelligente des anomalies de dépenses.
-- **Portals & Focus** : Modales immersives avec blocage du scroll arrière pour une concentration totale.
+- **Zen Analysis (Le Majordome)** :
+    - **Zen Alerte** : Détection des risques de découvert et anomalies "Gardien du Dérapage".
+    - **Zen Contrats** : Audit automatique des abonnements récurrents et détection des hausses de prix.
+    - **Zen Épargne** : Identification des opportunités de virement vers vos projets ("L'Opportuniste").
+- **ZenMobile** : Architecture PWA complète avec support offline (en cours), icônes adaptatives et prompt d'installation natif.
+- **Interface Immersive** : Glassmorphism, animations fluides et interactions "Zen" (Swipe, Modales Focus).
 
 ---
 *Fait avec ❤️ pour apporter un peu de calme dans vos chiffres.*

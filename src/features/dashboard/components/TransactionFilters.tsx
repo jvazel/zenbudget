@@ -50,17 +50,17 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                         onChange={(e) => onCategoryChange(e.target.value)}
                         className="w-full md:w-48 bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary/30 appearance-none cursor-pointer hover:bg-white/10 transition-all text-white/60 font-medium"
                     >
-                        <option value="all" className="bg-[#0f172a] text-white">
+                        <option value="all" className="bg-[#1e293b] text-white">
                             Toutes catégories {categories.length > 0 ? `(${categories.length})` : ''}
                         </option>
                         {categories && categories.length > 0 ? (
                             categories.map(cat => (
-                                <option key={cat.id} value={cat.id} className="bg-[#0f172a] text-white">
+                                <option key={cat.id} value={cat.id} className="bg-[#1e293b] text-white">
                                     {cat.name}
                                 </option>
                             ))
                         ) : (
-                            <option disabled className="bg-[#0f172a] text-white/20 italic">
+                            <option disabled className="bg-[#1e293b] text-white/20 italic">
                                 Chargement...
                             </option>
                         )}
@@ -74,9 +74,9 @@ export const TransactionFilters: React.FC<TransactionFiltersProps> = ({
                         onChange={(e) => onCheckStatusChange(e.target.value as any)}
                         className="w-full md:w-40 bg-white/5 border border-white/5 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary/30 appearance-none cursor-pointer hover:bg-white/10 transition-all text-white/60 font-medium"
                     >
-                        <option value="all" className="bg-[#0f172a] text-white">Tous états</option>
-                        <option value="checked" className="bg-[#0f172a] text-white">Pointées</option>
-                        <option value="unchecked" className="bg-[#0f172a] text-white">Non pointées</option>
+                        <option value="all" className="bg-[#1e293b] text-white">Tous états</option>
+                        <option value="checked" className="bg-[#1e293b] text-white">Pointées</option>
+                        <option value="unchecked" className="bg-[#1e293b] text-white">Non pointées</option>
                     </select>
                     <Check className="absolute right-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white/20 pointer-events-none" />
                 </div>

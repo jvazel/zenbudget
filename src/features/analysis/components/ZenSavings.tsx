@@ -25,7 +25,7 @@ export const ZenSavings: React.FC = () => {
         <div className="space-y-6">
             <div className="flex items-center space-x-2 px-2">
                 <Wallet className="w-4 h-4 text-primary" />
-                <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">ZenSavings</h2>
+                <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">Zen Épargne</h2>
             </div>
 
             <div className="glass rounded-[40px] p-8 border border-white/5 bg-[#06b6d4]/5 relative overflow-hidden">

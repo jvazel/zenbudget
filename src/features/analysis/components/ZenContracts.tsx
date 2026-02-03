@@ -35,7 +35,7 @@ export const ZenContracts: React.FC = () => {
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center space-x-2">
                     <ShieldAlert className="w-4 h-4 text-primary" />
-                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">ZenContracts</h2>
+                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">Zen Contrats</h2>
                 </div>
                 <div className="text-right">
                     <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest opacity-40">Impact Fixe</p>

@@ -37,7 +37,7 @@ export const ZenInsightsPanel: React.FC<ZenInsightsPanelProps> = ({ isOpen, onCl
                             <div className="flex items-center space-x-2">
                                 <Sparkles className="w-5 h-5 text-primary" />
                                 <h2 className="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-purple-400">
-                                    Zen Insights
+                                    Zen Infos
                                 </h2>
                             </div>
                             <button onClick={onClose} className="p-2 hover:bg-white/10 rounded-full transition-colors">

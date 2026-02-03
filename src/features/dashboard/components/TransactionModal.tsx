@@ -244,7 +244,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
                                         className={`w-full bg-white/5 border border-white/5 rounded-2xl py-4 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-colors appearance-none ${isZenSuggestion ? 'text-yellow-400 font-bold' : ''}`}
                                     >
                                         {categories.map(cat => (
-                                            <option key={cat.id} value={cat.id} className="bg-background text-foreground font-normal">{cat.name}</option>
+                                            <option key={cat.id} value={cat.id} className="bg-[#1e293b] text-white font-normal">{cat.name}</option>
                                         ))}
                                         {categories.length === 0 && <option value="" disabled>Aucune catégorie</option>}
                                     </select>

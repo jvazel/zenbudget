@@ -57,7 +57,7 @@ export const ZenTrends: React.FC = () => {
             <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                     <TrendingUp className="w-4 h-4 text-primary" />
-                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">ZenTrends</h2>
+                    <h2 className="text-[10px] text-muted-foreground uppercase font-bold tracking-[0.2em]">Zen Tendances</h2>
                 </div>
                 <div className="p-1 px-2 bg-white/5 rounded-full border border-white/10 flex items-center space-x-1">
                     <Info className="w-3 h-3 text-muted-foreground opacity-40" />

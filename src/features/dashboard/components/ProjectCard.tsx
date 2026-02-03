@@ -9,15 +9,17 @@ interface ProjectCardProps {
     category: string
     icon?: React.ReactNode
     onFeed?: (e: React.MouseEvent) => void
+    onClick?: () => void
 }
 
-export const ProjectCard: React.FC<ProjectCardProps> = ({ title, current, target, category, icon, onFeed }) => {
+export const ProjectCard: React.FC<ProjectCardProps> = ({ title, current, target, category, icon, onFeed, onClick }) => {
     const percentage = Math.min((current / target) * 100, 100)
 
     return (
         <motion.div
             whileHover={{ y: -5 }}
-            className="glass rounded-3xl p-6 border border-white/5 space-y-4 group transition-all hover:bg-white/5"
+            onClick={onClick}
+            className="glass rounded-3xl p-6 border border-white/5 space-y-4 group transition-all hover:bg-white/5 cursor-pointer"
         >
             <div className="flex justify-between items-start">
                 <div className="flex items-center space-x-3">

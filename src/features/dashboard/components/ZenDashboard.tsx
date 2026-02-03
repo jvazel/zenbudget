@@ -99,7 +99,7 @@ export const ZenDashboard: React.FC = () => {
     const [isProjectModalOpen, setIsProjectModalOpen] = useState(false)
     const [isPickerOpen, setIsPickerOpen] = useState(false)
     const [editingTransaction, setEditingTransaction] = useState<any>(null)
-    const [editingProject] = useState<SavingsGoal | null>(null)
+    const [editingProject, setEditingProject] = useState<SavingsGoal | null>(null)
     const [feedingProject, setFeedingProject] = useState<SavingsGoal | null>(null)
     const [isFeedModalOpen, setIsFeedModalOpen] = useState(false)
 
@@ -283,7 +283,7 @@ export const ZenDashboard: React.FC = () => {
                         <button
                             onClick={() => setIsZenPanelOpen(true)}
                             className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all relative group"
-                            title="Zen Insights"
+                            title="Zen Infos"
                         >
                             <Brain className={`w-5 h-5 ${unreadCount > 0 ? 'text-primary' : 'text-white/40 group-hover:text-white'}`} />
                             {unreadCount > 0 && (
@@ -412,14 +412,22 @@ export const ZenDashboard: React.FC = () => {
                 <div className="space-y-6 pt-6">
                     <div className="flex justify-between items-center px-2">
                         <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest">Mes Projets Zen</h3>
-                        <button onClick={() => setIsProjectModalOpen(true)} className="text-[10px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center space-x-1">
+                        <button onClick={() => { setEditingProject(null); setIsProjectModalOpen(true); }} className="text-[10px] text-primary font-bold uppercase tracking-widest hover:underline flex items-center space-x-1">
                             <Plus className="w-3 h-3" />
                             <span>Nouveau</span>
                         </button>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {savingsGoals.map(goal => (
-                            <ProjectCard key={goal.id} title={goal.title} current={goal.current_amount} target={goal.target_amount} category={goal.category} onFeed={(e) => { e.stopPropagation(); openFeedModal(goal); }} />
+                            <ProjectCard
+                                key={goal.id}
+                                title={goal.title}
+                                current={goal.current_amount}
+                                target={goal.target_amount}
+                                category={goal.category}
+                                onFeed={(e) => { e.stopPropagation(); openFeedModal(goal); }}
+                                onClick={() => { setEditingProject(goal); setIsProjectModalOpen(true); }}
+                            />
                         ))}
                     </div>
                 </div>

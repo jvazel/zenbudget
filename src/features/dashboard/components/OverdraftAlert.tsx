@@ -36,7 +36,7 @@ export const OverdraftAlert: React.FC = () => {
                         </div>
                         <div>
                             <h3 className="text-sm font-bold text-white uppercase tracking-widest">Alerte Découvert</h3>
-                            <p className="text-[10px] text-red-400 font-bold uppercase tracking-tighter">ZenVision Prediction</p>
+                            <p className="text-[10px] text-red-400 font-bold uppercase tracking-tighter">Zen Alerte</p>
                         </div>
                     </div>
                 </div>
