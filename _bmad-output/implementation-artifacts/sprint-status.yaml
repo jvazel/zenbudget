@@ -121,3 +121,14 @@ development_status:
   15-2-audit-des-frais-zenfees: done
   15-5-pointage-des-transactions-zenreconcile: done
   epic-15-retrospective: done
+
+  epic-16: in-progress
+  16-1-zenanalyst-engine-service-base: done
+  16-2-rule-budget-overflow-gardien-du-derapage: done
+  16-3-rule-subscription-spike-anomalies-abonnements: done
+  16-4-rule-savings-opportunity-opportuniste: done
+  16-5-notification-center-ui: done
+  
+  epic-17: done
+  17-1-configuration-pwa-manifest: done
+  17-2-mode-offline-sync-queue: backlog

@@ -267,3 +267,51 @@ zenbudget/
 3. Appel Supabase (Service).
 4. Notification temps-réel reçue par le conjoint.
 5. Rafraîchissement automatique de l'UI du conjoint.
+
+# Architecture Phase V2 (Evolution)
+
+## V2 Architectural Decisions (ADRs)
+
+### ADR-001: ZenAnalyst Strategy (Rule-Based & Local)
+**Decision:** Utiliser un moteur de règles déterministes (Rule Engine) exécuté localement ou via Edge Functions légères, plutôt que des appels LLM coûteux.
+
+**Rationale:**
+- **Coût** : Gratuit (pas de tokens API).
+- **Performance** : Exécution immédiate (<10ms).
+- **Confidentialité** : Les données financières restent dans le périmètre applicatif.
+- **Fiabilité** : Les alertes sont basées sur des mathématiques (écart-type, seuils), pas sur des hallucinations.
+
+**Implementation Strategy:**
+- Création d'un `ZenAnalystService` (TypeScript).
+- Règles :
+  - `BudgetOverflowRule` : Alerte si dépense > X% du budget à Y% du mois.
+  - `SubscriptionSpikeRule` : Alerte si transaction récurrente > montant habituel + 10%.
+  - `SavingsOpportunityRule` : Alerte si solde > moyenne + 20%.
+
+### ADR-002: Mobile Technology (Progressive Web App)
+**Decision:** Renforcer l'application Web existante en PWA "Installable" plutôt que de développer une application native/hybride.
+
+**Rationale:**
+- **Time-to-Market** : Zéro code spécifique à maintenir.
+- **Expérience** : Le thème "Ocean Calm" est déjà mobile-first.
+- **Portabilité** : Fonctionne partout (iOS/Android/Desktop).
+
+**Implementation Strategy:**
+- Configuration du `manifest.json` (Icônes, couleurs, `display: standalone`).
+- Service Workers (Vite PWA Plugin) pour le cache offline des assets et de l'API (GET).
+- "Add to Home Screen" prompt personnalisé.
+
+## V2 System Design Updates
+
+### New Component: ZenAnalyst Engine
+- **Type** : Background Service (Frontend or Edge).
+- **Trigger** :
+  - *Reactive* : À chaque nouvelle transaction (via Realtime ou création locale).
+  - *Periodic* : Au chargement du Dashboard (User Session).
+- **Output** : Création d'une notification interne `ZenNotification` (persistée dans Supabase ou Store local).
+
+### Mobile Capabilities
+- **Offline Mode** :
+  - Cache des transactions (TanStack Query Persisters -> LocalStorage/IndexedDB).
+  - Queue de mutations pour les actions hors-ligne (validation swipe).
+

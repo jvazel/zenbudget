@@ -442,3 +442,82 @@ So that I can ensure my records match my bank statement.
 - [x] **Reconcile Action**: Toggle status on transaction (`is_checked` flag).
 - [x] **Visual Indicator**: Icon showing reconciled status (Check button in Dashboard).
 - [x] **Filter**: View only reconciled or unreconciled transactions (`TransactionFilters`).
+
+# Epic 16: ZenAnalyst - L'Intelligence Proactive (V2)
+
+Un moteur d'analyse silencieux qui détecte les anomalies et opportunités sans intervention utilisateur, alimentant le sentiment de sérénité (ADR-001).
+
+### Story 16.1: ZenAnalyst Engine (Service Base)
+As a system,
+I want to analyze transactions against a set of rules in the background,
+So that I can generate meaningful insights without slowing down the user experience.
+
+**Acceptance Criteria:**
+- [ ] **ZenAnalystService**: Création d'un service TypeScript isolé capable d'exécuter des règles.
+- [ ] **Data Inputs**: Le service accepte une transaction ou un jeu de données complet (historique).
+- [ ] **Rule Interface**: Définition d'une interface `AnalystRule` (name, condition, action).
+- [ ] **Trigger**: Le service est invoqué après chaque synchronisation ou validation de transaction.
+
+### Story 16.2: Rule - Budget Overflow (Gardien du Dérapage)
+As a user,
+I want to be warned if I burn my budget too fast early in the month,
+So that I can slow down before it's too late.
+
+**Acceptance Criteria:**
+- [ ] **Logic**: Alerte si (Jour < 15) ET (Dépenses Catégorie > 70% Budget).
+- [ ] **Sensitivity**: Configurable (ne pas alerter pour les petites sommes).
+- [ ] **Output**: Génération d'une `ZenNotification` de type 'warning'.
+
+### Story 16.3: Rule - Subscription Spike (Anomalies Abonnements)
+As a user,
+I want to know if a recurring bill allows itself to increase silently,
+So that I can contest the fee immediately.
+
+**Acceptance Criteria:**
+- [ ] **Detection**: Identification des transactions récurrentes (Pattern Matching).
+- [ ] **Logic**: Alerte si (Montant Actuel > Montant Habituel + Seuil Tolérance).
+- [ ] **Context**: L'alerte montre l'historique des 3 derniers paiements pour comparaison.
+
+### Story 16.4: Rule - Savings Opportunity (Opportuniste)
+As a user,
+I want to know when I have "sleeping money",
+So that I can contribute to my projects closer to my goals.
+
+**Acceptance Criteria:**
+- [ ] **Logic**: Alerte si (Solde Courant > Moyenne Solde + 20%) en fin de mois (J > 25).
+- [ ] **Action**: Bouton "One-Tap Save" dans la notification pour transférer vers un projet prioritaire.
+
+### Story 16.5: Notification Center UI
+As a user,
+I want to see these insights in a dedicated, non-intrusive area,
+So that my main dashboard remains clean but information is accessible.
+
+**Acceptance Criteria:**
+- [ ] **UI Component**: Panneau ou Popover "ZenInsights" (cloche ou icône cerveau).
+- [ ] **Discrete Badge**: Point rouge uniquement pour les alertes critiques (High Priority).
+- [ ] **Interaction**: Swipe to dismiss (J'ai vu) ou Tap to Act (Voir le détail).
+
+# Epic 17: ZenMobile - Expérience Native (PWA V2)
+
+Transformation de l'application Web en véritable compagnon mobile installable et résilient (ADR-002).
+
+### Story 17.1: Configuration PWA & Manifest
+As a mobile user,
+I want to install ZenBudget on my home screen looking like a native app,
+So that I can access it instantly without browser chrome.
+
+**Acceptance Criteria:**
+- [ ] **Manifest**: Nom "ZenBudget", couleur de thème définie, icônes adaptatives (iOS/Android).
+- [ ] **Meta Tags**: Configuration correcte des viewport, apple-touch-icon et status-bar-style.
+- [ ] **Install Prompt**: Invite personnalisée "Installer l'app" au bon moment (pas au premier lancement).
+
+### Story 17.2: Mode Offline & Sync Queue
+As a user in the subway,
+I want to swipe my transactions even without network,
+So that I don't break my daily ritual.
+
+**Acceptance Criteria:**
+- [ ] **Service Workers**: Cache des assets statiques (JS/CSS/Fonts) pour chargement instantané.
+- [ ] **Read Offline**: Les données déjà chargées (Transactions, Dashboard) sont visibles hors-ligne.
+- [ ] **Write Offline**: Les actions (Swipe) sont stockées dans une queue locale (`IndexedDB` ou `localStorage`).
+- [ ] **Auto-Sync**: La queue est traitée automatiquement dès le retour de la connexion.

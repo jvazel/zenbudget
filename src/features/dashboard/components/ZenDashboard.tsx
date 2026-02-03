@@ -21,6 +21,10 @@ import { TransactionFilters } from './TransactionFilters'
 import { categoryService, type Category } from '../../../services/categoryService'
 import { AccountMappingModal } from './AccountMappingModal'
 import { SimulationPanel } from './SimulationPanel'
+import { ZenInsightsPanel } from './ZenInsightsPanel'
+import { InstallPwaPrompt } from './InstallPwaPrompt'
+import { useZenAnalysis } from '../../../hooks/useZenAnalysis'
+import { Brain } from 'lucide-react'
 
 const TransactionItem: React.FC<{ transaction: Transaction; onToggleCheck: (e: React.MouseEvent) => void }> = ({ transaction, onToggleCheck }) => {
     const IconComponent = transaction.category_icon ? (ICON_MAP[transaction.category_icon] || (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)) : (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)
@@ -137,6 +141,37 @@ export const ZenDashboard: React.FC = () => {
     }
 
     const [isSimulationPanelOpen, setIsSimulationPanelOpen] = useState(false)
+    const [isZenPanelOpen, setIsZenPanelOpen] = useState(false)
+    const { insights, unreadCount, dismissInsight, markAsRead } = useZenAnalysis(selectedDate)
+
+    const handleInsightAction = (insight: any) => {
+        setIsZenPanelOpen(false); // Close panel
+        markAsRead(insight.id);
+
+        if (insight.ruleId === 'budget-overflow') {
+            // Filter by category
+            const categoryName = insight.metadata?.category;
+            if (categoryName) {
+                // Try to find category ID
+                const cat = categories.find(c => c.name === categoryName || c.name.toLowerCase() === categoryName.toLowerCase());
+                if (cat) {
+                    setFilters(prev => ({ ...prev, categoryId: cat.id }));
+                    // Maybe scroll to transactions? 
+                } else {
+                    setFilters(prev => ({ ...prev, search: categoryName }));
+                }
+            }
+        } else if (insight.ruleId === 'subscription-spike') {
+            const subName = insight.metadata?.subscription;
+            if (subName) {
+                setFilters(prev => ({ ...prev, search: subName }));
+            }
+        } else if (insight.ruleId === 'savings-opportunity') {
+            // Open Feed Project Modal? Or just highlight projects?
+            // Since we don't know WHICH project, maybe just scroll to projects?
+            // For now, do nothing special, user is on dashboard.
+        }
+    }
 
     const [mappingData, setMappingData] = useState<{ accounts: BankAccount[], sessionId: string, connectionId: string } | null>(null)
     const [isMappingModalOpen, setIsMappingModalOpen] = useState(false)
@@ -242,11 +277,23 @@ export const ZenDashboard: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 pb-32">
             {/* Left Column: Stats & History */}
             <div className="lg:col-span-2 space-y-8">
-                {/* Month Switcher */}
+                {/* Month Switcher \u0026 Header */}
                 <div className={`relative flex items-center justify-between px-2 transition-all duration-300 ${!isCurrentMonth() ? 'bg-primary/5 rounded-3xl p-2 animate-pulse-slow' : ''}`}>
-                    <button onClick={() => changeMonth(-1)} className="p-3 hover:bg-white/5 rounded-2xl transition-colors text-white/40 hover:text-white">
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => setIsZenPanelOpen(true)}
+                            className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl transition-all relative group"
+                            title="Zen Insights"
+                        >
+                            <Brain className={`w-5 h-5 ${unreadCount > 0 ? 'text-primary' : 'text-white/40 group-hover:text-white'}`} />
+                            {unreadCount > 0 && (
+                                <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                            )}
+                        </button>
+                        <button onClick={() => changeMonth(-1)} className="p-3 hover:bg-white/5 rounded-2xl transition-colors text-white/40 hover:text-white">
+                            <ChevronLeft className="w-5 h-5" />
+                        </button>
+                    </div>
                     <div className="relative">
                         <button onClick={() => setIsPickerOpen(!isPickerOpen)} className="flex items-center space-x-3 px-6 py-2 hover:bg-white/5 rounded-full transition-all group">
                             <Calendar className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
@@ -415,6 +462,17 @@ export const ZenDashboard: React.FC = () => {
                 isOpen={isSimulationPanelOpen}
                 onClose={() => setIsSimulationPanelOpen(false)}
             />
+
+            <ZenInsightsPanel
+                isOpen={isZenPanelOpen}
+                onClose={() => setIsZenPanelOpen(false)}
+                insights={insights}
+                onDismiss={dismissInsight}
+                onAction={handleInsightAction}
+            // onMarkAsRead={markAsRead}
+            />
+
+            <InstallPwaPrompt />
         </div>
     )
 }
