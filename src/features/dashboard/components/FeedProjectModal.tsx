@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Save, Coins, Zap } from 'lucide-react'
+import { X, Coins, Zap } from 'lucide-react'
 
 interface FeedProjectModalProps {
     isOpen: boolean

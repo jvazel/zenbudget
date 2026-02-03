@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { AlertCircle, TrendingUp, CheckCircle2 } from 'lucide-react'
+import { AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react'
 import { transactionService } from '../../../services/transactionService'
 import { type Transaction } from '../../inbox/components/TransactionCard'
 import { useScrollLock } from '../../../hooks/useScrollLock'
@@ -11,6 +11,7 @@ import { ZenCategoryFlow } from './ZenCategoryFlow'
 import { ZenContracts } from './ZenContracts'
 import { ZenTrends } from './ZenTrends'
 import { ZenSavings } from './ZenSavings'
+import { ZenFees } from './ZenFees'
 
 export const ZenAnalysis: React.FC = () => {
     const [transactions, setTransactions] = useState<Transaction[]>([])
@@ -172,6 +173,11 @@ export const ZenAnalysis: React.FC = () => {
                         </div>
                     )}
                 </div>
+            </section>
+
+            {/* ZenFees Section */}
+            <section className="space-y-4">
+                <ZenFees />
             </section>
 
             {/* ZenContracts Section */}

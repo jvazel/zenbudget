@@ -1,0 +1,31 @@
+﻿14:43:50 - Projects in this build: 
+    * tsconfig.app.json
+    * tsconfig.node.json
+    * tsconfig.json
+
+14:43:50 - Project 'tsconfig.app.json' is out of date because buildinfo file 'node_modules/.tmp/tsconfig.app.tsbuildinfo' indicates that program needs to report errors.
+
+14:43:50 - Building project 'C:/Projects/zenbudget/tsconfig.app.json'...
+
+src/features/analysis/components/ZenCategoryFlow.tsx(33,31): error TS2345: Argument of type 'unknown' is not assignable to parameter of type 'number'.
+src/features/analysis/components/ZenCategoryFlow.tsx(34,44): error TS2769: No overload matches this call.
+  Overload 1 of 3, '(callbackfn: (previousValue: unknown, currentValue: unknown, currentIndex: number, array: unknown[]) => unknown, initialValue: unknown): unknown', gave the following error.
+    Argument of type '(a: number, b: number) => number' is not assignable to parameter of type '(previousValue: unknown, currentValue: unknown, currentIndex: number, array: unknown[]) => unknown'.
+      Types of parameters 'a' and 'previousValue' are incompatible.
+        Type 'unknown' is not assignable to type 'number'.
+  Overload 2 of 3, '(callbackfn: (previousValue: number, currentValue: unknown, currentIndex: number, array: unknown[]) => number, initialValue: number): number', gave the following error.
+    Argument of type '(a: number, b: number) => number' is not assignable to parameter of type '(previousValue: number, currentValue: unknown, currentIndex: number, array: unknown[]) => number'.
+      Types of parameters 'b' and 'currentValue' are incompatible.
+        Type 'unknown' is not assignable to type 'number'.
+src/features/dashboard/components/FeedProjectModal.tsx(3,13): error TS6133: 'Save' is declared but its value is never read.
+src/features/dashboard/components/ProjectCard.test.tsx(4,1): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/TransactionModal.test.tsx(6,1): error TS6133: 'React' is declared but its value is never read.
+src/features/dashboard/components/ZenGauge.test.tsx(4,1): error TS6133: 'React' is declared but its value is never read.
+src/features/inbox/components/TransactionCard.test.tsx(4,1): error TS6133: 'React' is declared but its value is never read.
+src/features/inbox/components/TransactionStack.test.tsx(5,1): error TS6133: 'React' is declared but its value is never read.
+src/features/inbox/components/ZenSuccessState.test.tsx(4,1): error TS6133: 'React' is declared but its value is never read.
+src/services/patternService.test.ts(1,48): error TS6133: 'afterEach' is declared but its value is never read.
+14:43:52 - Project 'tsconfig.node.json' is out of date because output file 'vite.config.js' does not exist
+
+14:43:52 - Building project 'C:/Projects/zenbudget/tsconfig.node.json'...
+

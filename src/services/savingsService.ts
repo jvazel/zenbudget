@@ -1,4 +1,10 @@
-import { supabase } from '../lib/supabase'
+import { supabase, isConfigured } from '../lib/supabase'
+
+const MOCK_GOALS: SavingsGoal[] = [
+    { id: 'mock-goal-1', title: 'Vacances 2026', target_amount: 3000, current_amount: 1200, category: 'Loisirs', owner_id: 'mock-user' },
+    { id: 'mock-goal-2', title: 'Fonds d\'Urgence', target_amount: 10000, current_amount: 4500, category: 'Sécurité', owner_id: 'mock-user' },
+    { id: 'mock-goal-3', title: 'Nouvelle Voiture', target_amount: 15000, current_amount: 2000, category: 'Transport', owner_id: 'mock-user' }
+]
 
 export interface SavingsGoal {
     id: string
@@ -11,6 +17,8 @@ export interface SavingsGoal {
 
 export const savingsService = {
     async getSavingsGoals(): Promise<SavingsGoal[]> {
+        if (!isConfigured) return MOCK_GOALS
+
         try {
             const { data, error } = await supabase
                 .from('savings_goals')
@@ -26,6 +34,12 @@ export const savingsService = {
     },
 
     async updateSavingsAmount(id: string, incrementalAmount: number): Promise<void> {
+        if (!isConfigured) {
+            const goal = MOCK_GOALS.find(g => g.id === id)
+            if (goal) goal.current_amount += incrementalAmount
+            return new Promise(resolve => setTimeout(resolve, 500))
+        }
+
         try {
             // Get current amount first
             const { data: goal, error: fetchError } = await supabase

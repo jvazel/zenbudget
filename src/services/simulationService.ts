@@ -87,6 +87,7 @@ export const simulationService = {
 
             const endDate = new Date(today)
             endDate.setDate(today.getDate() + days)
+            endDate.setHours(23, 59, 59, 999)
 
             const formatLocal = (d: Date) => {
                 const year = d.getFullYear()
@@ -95,9 +96,13 @@ export const simulationService = {
                 return `${year}-${month}-${day}`
             }
 
+            const parseLocalDate = (dateStr: string) => {
+                const [year, month, day] = dateStr.split('-').map(Number)
+                return new Date(year, month - 1, day)
+            }
+
             scenario.events.forEach(event => {
-                const startDate = new Date(event.date)
-                startDate.setHours(0, 0, 0, 0)
+                const startDate = parseLocalDate(event.date)
 
                 if (event.type === 'one-off') {
                     if (startDate >= today && startDate <= endDate) {

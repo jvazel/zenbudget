@@ -99,17 +99,18 @@ export const projectionService = {
 
                 if (lastTx) {
                     const lastDate = new Date(lastTx.transaction_date)
-                    let nextDate = new Date(lastDate)
+                    // Start from the same day as the last transaction
+                    let nextDate = new Date(lastDate.getFullYear(), lastDate.getMonth(), lastDate.getDate())
 
-                    // Keep adding months until we find an occurrence in the future
+                    // Keep adding months until we find an occurrence >= today
                     let loops = 0
-                    while (nextDate <= today && loops < 12) {
+                    while (nextDate < today && loops < 12) {
                         nextDate.setMonth(nextDate.getMonth() + 1)
                         loops++
                     }
 
                     // If it falls within next 32 days
-                    if (nextDate > today && nextDate <= thirtyDaysFromNow) {
+                    if (nextDate >= today && nextDate <= thirtyDaysFromNow) {
                         const cat = Array.isArray(pattern.categories) ? pattern.categories[0] : pattern.categories
 
                         projections.push({

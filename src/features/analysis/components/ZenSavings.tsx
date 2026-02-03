@@ -1,17 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import { Wallet, Sparkles, ArrowUpRight, CheckCircle2 } from 'lucide-react'
 import { transactionService } from '../../../services/transactionService'
+import { SavingsAllocationModal } from './SavingsAllocationModal'
 
 export const ZenSavings: React.FC = () => {
     const [potential, setPotential] = useState<{ surplus: number, optimizable: number, total: number } | null>(null)
     const [loading, setLoading] = useState(true)
+    const [isModalOpen, setIsModalOpen] = useState(false)
+
+    const load = async () => {
+        setLoading(true)
+        const data = await transactionService.getSavingsPotential()
+        setPotential(data)
+        setLoading(false)
+    }
 
     useEffect(() => {
-        const load = async () => {
-            const data = await transactionService.getSavingsPotential()
-            setPotential(data)
-            setLoading(false)
-        }
         load()
     }, [])
 
@@ -68,13 +72,23 @@ export const ZenSavings: React.FC = () => {
                             </p>
                         </div>
 
-                        <button className="w-full py-4 bg-primary text-background rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2">
+                        <button
+                            onClick={() => setIsModalOpen(true)}
+                            className="w-full py-4 bg-primary text-background rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center space-x-2"
+                        >
                             <span>Appliquer aux Objectifs</span>
                             <ArrowUpRight className="w-3 h-3" />
                         </button>
                     </div>
                 </div>
             </div>
+
+            <SavingsAllocationModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                amount={potential.surplus}
+                onAllocated={load}
+            />
         </div>
     )
 }
