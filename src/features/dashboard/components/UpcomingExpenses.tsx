@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Calendar as CalendarIcon, Zap, ShoppingBag, Coffee, Car, Home, Heart, Sparkles, Tag, TrendingUp, LayoutList } from 'lucide-react'
 import { projectionService, type ProjectedTransaction } from '../../../services/projectionService'
+import { calculationService } from '../../../services/calculationService'
 
 const ICON_MAP: Record<string, any> = {
     Tag,
@@ -237,7 +238,7 @@ export const UpcomingExpenses: React.FC = () => {
 
                                         {cd.projections.length > 0 && (
                                             <div className="text-[7px] font-black text-white/40 mt-auto truncate w-full text-center leading-none">
-                                                {cd.projections.reduce((sum, p) => sum + p.amount, 0).toFixed(0)}€
+                                                {calculationService.sumTransactions(cd.projections).toFixed(0)}€
                                             </div>
                                         )}
                                     </div>

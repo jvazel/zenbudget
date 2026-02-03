@@ -159,6 +159,21 @@ export const transactionService = {
         }
     },
 
+    /**
+     * Calculates the total balance across all validated transactions.
+     */
+    async getTotalBalance(): Promise<number> {
+        if (!isConfigured) return 1250.45 // Mock balance
+
+        const { data, error } = await supabase
+            .from('transactions')
+            .select('amount')
+            .eq('status', 'validated')
+
+        if (error) throw error
+        return calculationService.sumTransactions(data || [])
+    },
+
     async updateTransactionStatus(id: string, status: 'validated' | 'ignored', categoryId?: string): Promise<void> {
         try {
             const { data: { user } } = await supabase.auth.getUser()
@@ -250,15 +265,10 @@ export const transactionService = {
 
             const baseIncome = Number(profile?.base_monthly_income || 0)
 
-            const incomeFromTxs = data
-                .filter(t => t.amount > 0)
-                .reduce((acc, t) => acc + Number(t.amount), 0)
-
+            const incomeFromTxs = calculationService.sumTransactions(data.filter(t => t.amount > 0))
             const income = incomeFromTxs || baseIncome
 
-            const expenses = Math.abs(data
-                .filter(t => t.amount < 0)
-                .reduce((acc, t) => acc + Number(t.amount), 0))
+            const expenses = Math.abs(calculationService.sumTransactions(data.filter(t => t.amount < 0)))
 
             const { data: savings, error: savingsError } = await supabase
                 .from('savings_goals')

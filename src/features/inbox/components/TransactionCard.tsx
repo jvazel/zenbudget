@@ -38,6 +38,7 @@ export interface Transaction {
     validated_by_name?: string
     isval_zen_suggestion?: boolean
     anomaly?: AnomalyResult
+    external_id?: string
 }
 
 interface TransactionCardProps {

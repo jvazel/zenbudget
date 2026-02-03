@@ -9,14 +9,18 @@ import { ZenGuide } from './ZenGuide'
 import { OverdraftAlert } from './OverdraftAlert'
 import { ProjectModal } from './ProjectModal'
 import { FeedProjectModal } from './FeedProjectModal'
+import { BankConnectionSection } from './BankConnectionSection'
 import { TransactionModal } from './TransactionModal'
 import { transactionService } from '../../../services/transactionService'
 import { savingsService, type SavingsGoal } from '../../../services/savingsService'
+import { bankingService, type BankAccount } from '../../../services/bankingService'
 import { type Transaction, ICON_MAP } from '../../inbox/components/TransactionCard'
 import { supabase } from '../../../lib/supabase'
 import { useDateStore } from '../../../stores/useDateStore'
 import { TransactionFilters } from './TransactionFilters'
 import { categoryService, type Category } from '../../../services/categoryService'
+import { AccountMappingModal } from './AccountMappingModal'
+import { SimulationPanel } from './SimulationPanel'
 
 const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }) => {
     const IconComponent = transaction.category_icon ? (ICON_MAP[transaction.category_icon] || (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)) : (transaction.amount > 0 ? ArrowUpRight : ArrowDownRight)
@@ -25,8 +29,8 @@ const TransactionItem: React.FC<{ transaction: Transaction }> = ({ transaction }
     return (
         <div
             className={`p-4 bg-white/5 hover:bg-white/10 border rounded-2xl flex items-center justify-between transition-all group cursor-pointer active:scale-[0.98] ${isAnomaly
-                    ? 'border-red-500/30 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
-                    : 'border-white/5 hover:border-white/20'
+                ? 'border-red-500/30 bg-red-500/5 shadow-[0_0_15px_rgba(239,68,68,0.1)]'
+                : 'border-white/5 hover:border-white/20'
                 }`}
         >
             <div className="flex items-center space-x-4">
@@ -118,9 +122,49 @@ export const ZenDashboard: React.FC = () => {
         }
     }
 
+    const [isSimulationPanelOpen, setIsSimulationPanelOpen] = useState(false)
+
+    const [mappingData, setMappingData] = useState<{ accounts: BankAccount[], sessionId: string, connectionId: string } | null>(null)
+    const [isMappingModalOpen, setIsMappingModalOpen] = useState(false)
+
+    const handleFinalizeBankConnection = async (code: string) => {
+        try {
+            const { accounts, sessionId } = await bankingService.finalizeConnection(code)
+
+            // Get the connection we just finalized to get its ID
+            const connections = await bankingService.getActiveConnections()
+            const currentConn = connections.find(c => c.requisition_id === sessionId)
+
+            if (currentConn) {
+                setMappingData({
+                    accounts,
+                    sessionId,
+                    connectionId: currentConn.id
+                })
+                setIsMappingModalOpen(true)
+            }
+
+            // Clean URL
+            window.history.replaceState({}, document.title, "/dashboard")
+            // Refresh data
+            loadDashboardData(selectedDate)
+        } catch (err) {
+            console.error('Failed to finalize bank connection:', err)
+        }
+    }
+
     useEffect(() => {
         loadDashboardData(selectedDate)
         loadCategories()
+
+        // Handle Bank Connection Callback (Enable Banking returns ?code=...)
+        const params = new URLSearchParams(window.location.search)
+        const code = params.get('code')
+        const isCallback = params.get('banking_callback')
+
+        if (isCallback && code) {
+            handleFinalizeBankConnection(code)
+        }
 
         const channel = supabase
             .channel('dashboard-updates')
@@ -296,8 +340,9 @@ export const ZenDashboard: React.FC = () => {
             <div className="space-y-8 lg:col-span-1">
                 <ZenGuide transactionCount={recentTransactions.length} />
                 <OverdraftAlert />
-                <BalanceProjection />
+                <BalanceProjection onOpenSimulation={() => setIsSimulationPanelOpen(true)} />
                 <UpcomingExpenses />
+                <BankConnectionSection />
             </div>
 
             {/* Floating Action Button */}
@@ -314,6 +359,20 @@ export const ZenDashboard: React.FC = () => {
             <TransactionModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onSuccess={() => loadDashboardData(selectedDate)} transaction={editingTransaction} />
             <ProjectModal isOpen={isProjectModalOpen} onClose={() => setIsProjectModalOpen(false)} onSuccess={() => loadDashboardData(selectedDate)} project={editingProject} />
             <FeedProjectModal isOpen={isFeedModalOpen} onClose={() => setIsFeedModalOpen(false)} onSuccess={performFeedProject} projectTitle={feedingProject?.title || ''} />
+
+            <AccountMappingModal
+                isOpen={isMappingModalOpen}
+                onClose={() => setIsMappingModalOpen(false)}
+                bankAccounts={mappingData?.accounts || []}
+                sessionId={mappingData?.sessionId || ''}
+                connectionId={mappingData?.connectionId || ''}
+                onSuccess={() => loadDashboardData(selectedDate)}
+            />
+
+            <SimulationPanel
+                isOpen={isSimulationPanelOpen}
+                onClose={() => setIsSimulationPanelOpen(false)}
+            />
         </div>
     )
 }

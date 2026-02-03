@@ -64,13 +64,13 @@ development_status:
   4-3-suivi-d-audit-partage: done
   epic-4-retrospective: optional
 
-  epic-5: in-progress
+  epic-5: done
   5-1-zengauge-du-reste-a-vivre-rav: done
   5-2-gestion-des-objectifs-d-epargne: done
   5-3-transition-zero-state-vers-dashboard: done
   5-4-navigation-temporelle-historique: done
   5-5-recherche-et-filtrage-de-transactions: done
-  epic-5-retrospective: optional
+  epic-5-retrospective: done
 
   epic-6: done
   6-1-saisie-manuelle-de-transactions: done
@@ -95,10 +95,11 @@ development_status:
   9-3-pilotage-automatique-auto-validation: done
   epic-9-retrospective: done
 
-  epic-10: in-progress
+  epic-10: done
   10-1-calendrier-des-echeances: done
   10-2-projection-du-solde: done
   10-3-alertes-anti-decouvert: done
+  epic-10-retrospective: done
 
   epic-11: done
   11-1-systeme-de-notifications-de-serenite: done
@@ -107,7 +108,6 @@ development_status:
   12-1-flux-d-onboarding: done
   12-2-le-guide-zen-du-dashboard: done
   epic-12-retrospective: optional
-+
-+  epic-13: backlog
-+  13-1-connexion-bancaire-directe: backlog
-+  epic-13-retrospective: optional
+  epic-13: done
+  13-1-connexion-bancaire-directe: done
+  epic-13-retrospective: done

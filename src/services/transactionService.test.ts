@@ -71,7 +71,17 @@ describe('transactionService', () => {
                         select: () => Promise.resolve({ data: mockSavings, error: null })
                     }
                 }
-                return {}
+                if (table === 'profiles') {
+                    return {
+                        select: () => ({
+                            single: () => Promise.resolve({ data: { base_monthly_income: 0 }, error: null })
+                        })
+                    }
+                }
+                return {
+                    select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: { id: 'acc-1' }, error: null }) }) }),
+                    insert: () => ({ select: () => ({ single: () => Promise.resolve({ data: { id: 'acc-1' }, error: null }) }) })
+                }
             })
 
             const stats = await transactionService.getDashboardStats()
@@ -131,6 +141,11 @@ describe('transactionService', () => {
 
     describe('getSavingsPotential', () => {
         it('calculates total potential correctly', async () => {
+            // Mock dependencies to avoid DB calls
+            vi.spyOn(transactionService, 'getDashboardStats').mockResolvedValue({ income: 2000, expenses: 1000, rav: 500 })
+            vi.spyOn(transactionService, 'getSubscriptions').mockResolvedValue([])
+            vi.spyOn(transactionService, 'getEnergyLeaks').mockResolvedValue([])
+
             const potential = await transactionService.getSavingsPotential()
             expect(potential).toHaveProperty('surplus')
             expect(potential).toHaveProperty('optimizable')

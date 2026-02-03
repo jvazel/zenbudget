@@ -13,15 +13,24 @@ export const calculationService = {
     },
 
     /**
+     * Sums the amounts of an array of transactions.
+     */
+    sumTransactions(transactions: { amount: number | string }[]): number {
+        return transactions.reduce((sum, t) => sum + Number(t.amount || 0), 0)
+    },
+
+    /**
      * Projects daily balance history for a given period.
      * @param currentBalance Starting balance
      * @param projections Array of upcoming expected transactions
      * @param days Number of days to project
+     * @param simulationEvents Optional array of one-off or recurring simulation events
      */
     projectBalanceHistory(
         currentBalance: number,
         projections: ProjectedTransaction[],
-        days: number = 32
+        days: number = 32,
+        simulationEvents: { amount: number, date: string }[] = []
     ): BalancePoint[] {
         const history: BalancePoint[] = []
         const today = new Date()
@@ -29,23 +38,30 @@ export const calculationService = {
 
         let balance = currentBalance
 
+        // Helper to get YYYY-MM-DD in local time
+        const formatLocal = (d: Date) => {
+            const year = d.getFullYear()
+            const month = String(d.getMonth() + 1).padStart(2, '0')
+            const day = String(d.getDate()).padStart(2, '0')
+            return `${year}-${month}-${day}`
+        }
+
+        const allEvents = [
+            ...projections.map(p => ({ amount: p.amount, date: p.due_date })),
+            ...simulationEvents.map(s => ({ amount: s.amount, date: s.date }))
+        ]
+
         for (let i = 0; i <= days; i++) {
             const currentDate = new Date(today)
             currentDate.setDate(today.getDate() + i)
+            const dateStr = formatLocal(currentDate)
 
-            // Use YYYY-MM-DD in local time
-            const dateStr = [
-                currentDate.getFullYear(),
-                String(currentDate.getMonth() + 1).padStart(2, '0'),
-                String(currentDate.getDate()).padStart(2, '0')
-            ].join('-')
+            // Find events due on this specific date
+            const deltaToday = allEvents
+                .filter(e => e.date === dateStr)
+                .reduce((sum, e) => sum + e.amount, 0)
 
-            // Find projections due on this specific date
-            const expensesToday = projections
-                .filter(p => p.due_date === dateStr)
-                .reduce((sum, p) => sum + p.amount, 0)
-
-            balance += expensesToday
+            balance += deltaToday
 
             history.push({
                 date: dateStr,

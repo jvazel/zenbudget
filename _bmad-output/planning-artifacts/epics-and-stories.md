@@ -397,8 +397,8 @@ I want to securely connect my bank account to ZenBudget,
 So that my transactions are automatically synchronized without any manual effort.
 
 **Acceptance Criteria:**
-- [ ] **Contrainte : Solution 100% Gratuit** (GoCardless recommandé).
-- [ ] **Intégration Agrégateur** : Mise en place d'un tunnel de connexion sécurisé conforme à la DSP2.
+- [ ] **Contrainte : Solution 100% Gratuit** (Enable Banking recommandé).
+- [ ] **Intégration Agrégateur** : Mise en place d'un tunnel de connexion sécurisé conforme à la DSP2 via Enable Banking.
 - [ ] **Sélection de Compte** : L'utilisateur peut choisir quel compte bancaire synchroniser avec ZenBudget.
 - [ ] **Récupération Historique** : Récupération automatique des 30 derniers jours lors de la première connexion.
 - [ ] **Sync Quotidienne** : Les nouvelles transactions apparaissent automatiquement dans l'Inbox.

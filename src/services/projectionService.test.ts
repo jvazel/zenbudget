@@ -11,7 +11,8 @@ const { mockSupabase } = vi.hoisted(() => {
 })
 
 vi.mock('../lib/supabase', () => ({
-    supabase: mockSupabase
+    supabase: mockSupabase,
+    isConfigured: true
 }))
 
 describe('projectionService', () => {

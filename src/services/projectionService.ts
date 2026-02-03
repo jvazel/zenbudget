@@ -1,5 +1,6 @@
 import { supabase, isConfigured } from '../lib/supabase'
 import { calculationService } from './calculationService'
+import { transactionService } from './transactionService'
 
 export interface ProjectedTransaction {
     id: string
@@ -138,22 +139,8 @@ export const projectionService = {
      */
     async getProjectedBalanceHistory(): Promise<BalancePoint[]> {
         try {
-            // 1. Get current balance by summing ALL validated transactions
-            let currentBalance = 0
-
-            if (isConfigured) {
-                const { data: txs, error: sError } = await supabase
-                    .from('transactions')
-                    .select('amount')
-                    .eq('status', 'validated')
-
-                if (!sError) {
-                    currentBalance = (txs || []).reduce((sum, t) => sum + Number(t.amount), 0)
-                }
-            } else {
-                // Mock balance for demo mode
-                currentBalance = 1250.45
-            }
+            // 1. Get current balance from centralized service
+            const currentBalance = await transactionService.getTotalBalance()
 
             // 2. Get upcoming projections
             const projections = await this.getUpcomingProjections()
