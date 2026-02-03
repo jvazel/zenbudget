@@ -404,3 +404,41 @@ So that my transactions are automatically synchronized without any manual effort
 - [ ] **Sync Quotidienne** : Les nouvelles transactions apparaissent automatiquement dans l'Inbox.
 - [ ] **Sécurité** : Consentement conforme à la DSP2 avec renouvellement tous les 90 jours.
 - [ ] **Privacy** : Option de déconnexion et suppression des accès bancaires à tout moment.
+
+# Epic 14: ZenVision II - Simulation Avancée
+
+Étendre les capacités de prévision pour permettre des simulations de scénarios financiers complexes ("What-if").
+
+### Story 14.1: Moteur de Simulation ZenVision
+As a user,
+I want to simulate different financial scenarios (major purchase, income change),
+So that I can see their impact on my future balance without affecting my real data.
+
+**Acceptance Criteria:**
+- [x] **Service de Simulation** : Création d'un service dédié capable de projeter le solde sur 12 mois.
+- [x] **Store de Simulation** : Gestion d'état locale pour les scénarios temporaires.
+- [x] **Intégration** : Utilisation du `calculationService` et `projectionService` existants.
+
+# Epic 15: Qualité & Maîtrise (Dette Technique & Polish)
+
+Une épic dédiée à la finition, au rattrapage de fonctionnalités manquantes et à l'amélioration de la qualité globale.
+
+### Story 15.2: Audit des Frais (ZenFees)
+As a user,
+I want to identify and track my banking fees,
+So that I can reduce unnecessary costs and optimize my budget.
+
+**Acceptance Criteria:**
+- [x] **Analysis Component**: Display total monthly fees and projected annual cost.
+- [x] **Visualization**: "Zen" cards showing specific fee transactions.
+- [x] **Insights**: Tips on potential savings.
+
+### Story 15.5: Pointage des Transactions (ZenReconcile)
+As a user,
+I want to manually mark transactions as "reconciled" or "checked",
+So that I can ensure my records match my bank statement.
+
+**Acceptance Criteria:**
+- [x] **Reconcile Action**: Toggle status on transaction (`is_checked` flag).
+- [x] **Visual Indicator**: Icon showing reconciled status (Check button in Dashboard).
+- [x] **Filter**: View only reconciled or unreconciled transactions (`TransactionFilters`).
