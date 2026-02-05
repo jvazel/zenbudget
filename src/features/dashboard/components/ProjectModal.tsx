@@ -153,7 +153,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({ isOpen, onClose, onS
                                         type="button"
                                         onClick={handleDelete}
                                         disabled={loading}
-                                        className="px-6 py-5 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-2xl font-bold text-sm transition-colors flex items-center justify-center border border-red-500/10"
+                                        className="px-6 py-5 bg-white/5 hover:bg-red-500/10 text-white/40 hover:text-red-500 rounded-2xl font-bold text-sm transition-colors flex items-center justify-center border border-white/5 hover:border-red-500/10"
                                     >
                                         <Trash2 className="w-5 h-5" />
                                     </button>

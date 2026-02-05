@@ -261,21 +261,21 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onCl
                                 {transaction ? (
                                     <>
                                         <button
+                                            type="button"
+                                            onClick={handleDelete}
+                                            disabled={isSubmitting}
+                                            className="px-6 py-4 bg-white/5 hover:bg-red-500/10 text-white/40 hover:text-red-500 rounded-2xl transition-all flex items-center justify-center border border-white/5 hover:border-red-500/20 active:scale-[0.98]"
+                                            title="Supprimer la transaction"
+                                        >
+                                            <Trash2 className="w-6 h-6" />
+                                        </button>
+                                        <button
                                             type="submit"
                                             disabled={isSubmitting}
                                             className="flex-1 bg-primary text-background rounded-2xl py-4 font-bold uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center"
                                             title="Enregistrer les modifications"
                                         >
                                             {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin" /> : <Check className="w-6 h-6" />}
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={handleDelete}
-                                            disabled={isSubmitting}
-                                            className="flex-1 bg-white/5 hover:bg-red-500/10 text-white/40 hover:text-red-500 rounded-2xl py-4 transition-all flex items-center justify-center border border-white/5 hover:border-red-500/20 active:scale-[0.98]"
-                                            title="Supprimer la transaction"
-                                        >
-                                            <Trash2 className="w-6 h-6" />
                                         </button>
                                     </>
                                 ) : (

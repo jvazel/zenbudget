@@ -4,20 +4,19 @@ import { describe, it, expect, vi } from 'vitest'
 import React from 'react'
 
 // Mock icons
-vi.mock('lucide-react', () => ({
-    Zap: () => <div data-testid="icon-zap" />,
-    X: () => <div data-testid="icon-x" />,
-    Check: () => <div data-testid="icon-check" />,
-    ShoppingBag: () => <div data-testid="icon-bag" />,
-    TrendingUp: () => <div data-testid="icon-trending" />,
-    Coffee: () => <div />,
-    Car: () => <div />,
-    Home: () => <div />,
-    Heart: () => <div />,
-    Sparkles: () => <div data-testid="sparkles-icon" />,
-    Tag: () => <div />,
-    RefreshCw: () => <div />
-}))
+vi.mock('lucide-react', () => {
+    const icons = [
+        'Zap', 'X', 'Check', 'ShoppingBag', 'Coffee', 'Car', 'Home', 'Heart', 'Sparkles', 'Tag', 'TrendingUp', 'RefreshCw',
+        'GraduationCap', 'Dumbbell', 'Plane', 'Gift', 'Music', 'Gamepad2', 'Briefcase', 'Stethoscope', 'Utensils', 'Wifi',
+        'Smartphone', 'PiggyBank', 'Receipt', 'Wrench', 'Baby', 'PawPrint', 'Bus', 'Train', 'BookOpen', 'Film', 'Camera',
+        'Palette', 'Hammer', 'Leaf', 'DollarSign', 'Percent'
+    ]
+    const mocks: any = {}
+    icons.forEach(icon => {
+        mocks[icon] = () => <div data-testid={`icon-${icon.toLowerCase()}`} />
+    })
+    return mocks
+})
 
 // Mock patternService
 vi.mock('../../../services/patternService', () => ({

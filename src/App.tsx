@@ -11,11 +11,15 @@ import { ZenAnalysis } from './features/analysis/components/ZenAnalysis'
 import { ZenToastContainer } from './features/dashboard/components/ZenToastContainer'
 import { OnboardingFlow } from './features/auth/components/OnboardingFlow'
 import { useProfile } from './hooks/useProfile'
+import { useOnline } from './services/connectivityService'
+import { SyncManager } from './components/SyncManager'
+import { WifiOff } from 'lucide-react'
 import './App.css'
 
 function App() {
   const { user, loading } = useAuth()
   const { profile, loading: profileLoading, refreshProfile } = useProfile()
+  const isOnline = useOnline()
   const [activeTab, setActiveTab] = useState<'inbox' | 'dashboard' | 'settings' | 'analysis'>('inbox')
 
   if (loading || (user && profileLoading)) {
@@ -45,6 +49,19 @@ function App() {
         className="fixed top-8 left-8 right-8 flex justify-between items-center z-50 pointer-events-none"
       >
         <div className="flex items-center space-x-2 text-white/40 text-xs font-bold uppercase tracking-tighter">
+          <AnimatePresence>
+            {!isOnline && (
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -10 }}
+                className="flex items-center space-x-1.5 bg-red-500/20 text-red-400 px-3 py-1 rounded-full border border-red-500/30"
+              >
+                <WifiOff className="w-3 h-3" />
+                <span>Hors-ligne</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </div>
       </motion.div>
 
@@ -170,6 +187,7 @@ function App() {
       )}
 
       <ZenToastContainer />
+      <SyncManager />
     </div>
   )
 }

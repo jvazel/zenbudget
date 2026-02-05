@@ -9,6 +9,8 @@ import { supabase } from '../../../lib/supabase'
 import { ZenSuccessState } from './ZenSuccessState'
 import { useAuth } from '../../auth/AuthContext'
 import { useNotificationStore } from '../../../stores/useNotificationStore'
+import { useOfflineStore } from '../../../stores/useOfflineStore'
+import { connectivityService } from '../../../services/connectivityService'
 
 interface TransactionStackProps {
     onComplete?: () => void
@@ -20,6 +22,7 @@ export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }
     const [importResult, setImportResult] = useState<{ count: number, skipped: number, auto: number } | null>(null)
     const [isImporting, setIsImporting] = useState(false)
     const { addNotification } = useNotificationStore()
+    const { addSyncAction } = useOfflineStore()
     const { user: currentUser } = useAuth()
 
     useEffect(() => {
@@ -89,12 +92,22 @@ export const TransactionStack: React.FC<TransactionStackProps> = ({ onComplete }
         // Optimistic Update
         setTransactions(prev => prev.slice(1))
 
-        // Remote Sync
-        await transactionService.updateTransactionStatus(swipedTransaction.id, status)
+        if (connectivityService.isOnline()) {
+            // Remote Sync
+            await transactionService.updateTransactionStatus(swipedTransaction.id, status)
 
-        // Zen Butler Learning (only if validated and has category)
-        if (status === 'validated' && swipedTransaction.category_id) {
-            await patternService.learnPattern(swipedTransaction.description, swipedTransaction.category_id)
+            // Zen Butler Learning (only if validated and has category)
+            if (status === 'validated' && swipedTransaction.category_id) {
+                await patternService.learnPattern(swipedTransaction.description, swipedTransaction.category_id)
+            }
+        } else {
+            // Offline Queue
+            const offlineAction = status === 'validated' ? 'validate' : 'ignore'
+            addSyncAction(swipedTransaction.id, offlineAction)
+            addNotification({
+                message: "Action enregistrée hors-ligne. Synchronisation automatique au retour du réseau. 🧘",
+                type: 'info'
+            })
         }
     }
 

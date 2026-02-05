@@ -10,6 +10,16 @@ vi.mock('../../../services/transactionService', () => ({
     }
 }))
 
+// Mock lucide-react
+vi.mock('lucide-react', () => ({
+    Waves: () => <div />,
+    TrendingUp: () => <div />,
+    TrendingDown: () => <div />,
+    Calendar: () => <div />,
+    ChevronRight: () => <div />,
+    Info: () => <div />
+}))
+
 describe('ZenCategoryFlow', () => {
     it('renders loading state initially', () => {
         (transactionService.getCategoryTrends as any).mockResolvedValue([])

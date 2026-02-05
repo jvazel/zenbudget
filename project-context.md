@@ -20,6 +20,7 @@ ZenBudget n'est pas un outil de comptabilité, c'est une application de **séré
 *   **Phase 6 (Analyses & Manuel)** : Saisie manuelle, ZenAlert, ZenContracts, ZenTrends et ZenSavings implémentés.
 *   **Phase 9-10 (Données & Vision)** : Import/Export (CSV/JSON), Pilotage Auto, Calendrier, Projections et Alertes Découvert OK.
 *   **Phase 11 (Notifications)** : Story 11.1 (Système de Notifications de Sérénité) OK. Build vert (59/59 tests) 🟢.
+*   **Phase 17 (ZenMobile)** : Story 17.2 (Offline Mode) et 17.4 (Push Notifications) OK. Build vert 🟢.
 
 ## 📜 Règles Critiques pour l'IA
 1.  **Aesthetics First** : Chaque nouveau composant doit respecter le style "glassmorphic" et les animations de `framer-motion`.
@@ -28,6 +29,6 @@ ZenBudget n'est pas un outil de comptabilité, c'est une application de **séré
 4.  **Security** : Les politiques RLS de Supabase sont la source de vérité pour les permissions.
 
 ## 🚀 Prochaines Étapes
-*   Connecter les flux bancaires réels (Gocardless/Bridge).
-*   Étendre les notifications aux alertes push mobiles.
+*   Connecter les flux bancaires réels (Gocardless/Bridge) [EN COURS].
 *   Finaliser l'onboarding utilisateur complet.
+*   Implémenter la signature VAPID côté serveur (Edge Functions) pour les push réels.

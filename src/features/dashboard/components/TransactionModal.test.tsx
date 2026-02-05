@@ -34,7 +34,9 @@ vi.mock('lucide-react', () => ({
     Tag: () => <div />,
     CreditCard: () => <div />,
     Loader2: () => <div />,
-    Sparkles: () => <div data-testid="sparkles-icon" />
+    Sparkles: () => <div data-testid="sparkles-icon" />,
+    Trash2: () => <div />,
+    Check: () => <div />
 }))
 
 // Mock framer-motion

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Tag, Plus, Trash2, X, Sparkles, ShoppingBag, Coffee, Car, Home, Heart, Download, Shield, LogOut, User as UserIcon } from 'lucide-react'
+import { Tag, Plus, Trash2, X, Sparkles, ShoppingBag, Coffee, Car, Home, Heart, Download, Shield, LogOut, User as UserIcon, Bell, GraduationCap, Dumbbell, Plane, Gift, Music, Gamepad2, Briefcase, Stethoscope, Utensils, Wifi, Smartphone, PiggyBank, Receipt, Wrench, Baby, PawPrint, Bus, Train, BookOpen, Film, Camera, Palette, Hammer, Leaf, DollarSign, Percent } from 'lucide-react'
+import { pushNotificationService } from '../../../services/pushNotificationService'
 import { categoryService, type Category } from '../../../services/categoryService'
 import { transactionService } from '../../../services/transactionService'
 import { exportService } from '../../../services/exportService'
@@ -10,20 +11,57 @@ const PRESET_ICONS = [
     { name: 'Tag', icon: Tag },
     { name: 'ShoppingBag', icon: ShoppingBag },
     { name: 'Coffee', icon: Coffee },
+    { name: 'Utensils', icon: Utensils },
     { name: 'Car', icon: Car },
+    { name: 'Bus', icon: Bus },
+    { name: 'Train', icon: Train },
+    { name: 'Plane', icon: Plane },
     { name: 'Home', icon: Home },
+    { name: 'Wifi', icon: Wifi },
+    { name: 'Smartphone', icon: Smartphone },
     { name: 'Heart', icon: Heart },
+    { name: 'Stethoscope', icon: Stethoscope },
+    { name: 'Dumbbell', icon: Dumbbell },
     { name: 'Sparkles', icon: Sparkles },
+    { name: 'GraduationCap', icon: GraduationCap },
+    { name: 'Briefcase', icon: Briefcase },
+    { name: 'Gift', icon: Gift },
+    { name: 'Music', icon: Music },
+    { name: 'Gamepad2', icon: Gamepad2 },
+    { name: 'Film', icon: Film },
+    { name: 'Camera', icon: Camera },
+    { name: 'Palette', icon: Palette },
+    { name: 'BookOpen', icon: BookOpen },
+    { name: 'PiggyBank', icon: PiggyBank },
+    { name: 'DollarSign', icon: DollarSign },
+    { name: 'Receipt', icon: Receipt },
+    { name: 'Percent', icon: Percent },
+    { name: 'Wrench', icon: Wrench },
+    { name: 'Hammer', icon: Hammer },
+    { name: 'Baby', icon: Baby },
+    { name: 'PawPrint', icon: PawPrint },
+    { name: 'Leaf', icon: Leaf },
 ]
 
 const PRESET_COLORS = [
-    '#14b8a6', // primary teal
+    '#14b8a6', // teal (primary)
+    '#06b6d4', // cyan
     '#3b82f6', // blue
+    '#6366f1', // indigo
+    '#8b5cf6', // violet
     '#a855f7', // purple
+    '#d946ef', // fuchsia
     '#ec4899', // pink
     '#f43f5e', // rose
+    '#ef4444', // red
+    '#f97316', // orange
     '#f59e0b', // amber
+    '#eab308', // yellow
+    '#84cc16', // lime
+    '#22c55e', // green
     '#10b981', // emerald
+    '#64748b', // slate
+    '#71717a', // zinc
 ]
 
 export const CategoryManager: React.FC = () => {
@@ -39,10 +77,36 @@ export const CategoryManager: React.FC = () => {
         type: 'expense' as 'income' | 'expense'
     })
     const [isExporting, setIsExporting] = useState(false)
+    const [pushStatus, setPushStatus] = useState<PermissionState | 'unsupported' | 'default'>('prompt')
+    const [isSubscribing, setIsSubscribing] = useState(false)
 
     useEffect(() => {
         loadCategories()
+        checkPushStatus()
     }, [])
+
+    const checkPushStatus = async () => {
+        const status = await pushNotificationService.checkPermission()
+        setPushStatus(status as any)
+    }
+
+    const handlePushToggle = async () => {
+        setIsSubscribing(true)
+        try {
+            if (pushStatus === 'granted') {
+                await pushNotificationService.unsubscribeUser()
+                setPushStatus('denied') // Simplified representation
+            } else {
+                await pushNotificationService.subscribeUser()
+                setPushStatus('granted')
+            }
+        } catch (error) {
+            console.error('Push error:', error)
+            alert('Réglage des notifications impossible sur ce navigateur.')
+        } finally {
+            setIsSubscribing(false)
+        }
+    }
 
     const loadCategories = async () => {
         setIsLoading(true)
@@ -277,6 +341,42 @@ export const CategoryManager: React.FC = () => {
                         )
                     })
                 )}
+            </div>
+
+            {/* Notifications Section */}
+            <div className="space-y-4 pt-4">
+                <div className="flex items-center space-x-2 px-2">
+                    <Bell className="w-4 h-4 text-white/40" />
+                    <h3 className="text-xs font-bold text-white/40 uppercase tracking-widest">Notifications</h3>
+                </div>
+
+                <motion.div
+                    whileHover={{ scale: 1.01 }}
+                    className="glass p-6 rounded-3xl border border-white/5 space-y-4">
+                    <div className="flex justify-between items-start">
+                        <div className="space-y-1">
+                            <p className="text-sm font-bold text-white">Notifications Push</p>
+                            <p className="text-[10px] text-white/40 leading-relaxed max-w-[200px]">
+                                Recevez des alertes ZenBudget directement sur votre appareil, même en arrière-plan.
+                            </p>
+                        </div>
+                        <button
+                            onClick={handlePushToggle}
+                            disabled={isSubscribing || pushStatus === 'unsupported'}
+                            className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none ${pushStatus === 'granted' ? 'bg-primary' : 'bg-white/10'} ${isSubscribing ? 'opacity-50' : ''}`}
+                        >
+                            <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${pushStatus === 'granted' ? 'translate-x-6' : 'translate-x-1'}`}
+                            />
+                        </button>
+                    </div>
+
+                    {pushStatus === 'denied' && (
+                        <p className="text-[9px] text-red-400 font-bold uppercase tracking-tighter bg-red-400/10 p-2 rounded-lg border border-red-400/20">
+                            Bloqué par le navigateur. Veuillez autoriser les notifications dans les réglages de votre appareil.
+                        </p>
+                    )}
+                </motion.div>
             </div>
 
             {/* Security & Data Section */}

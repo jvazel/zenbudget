@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { motion, useMotionValue, useTransform, type PanInfo } from 'framer-motion'
-import { Zap, X, Check, ShoppingBag, Coffee, Car, Home, Heart, Sparkles, Tag, TrendingUp, RefreshCw } from 'lucide-react'
+import { Zap, X, Check, ShoppingBag, Coffee, Car, Home, Heart, Sparkles, Tag, TrendingUp, RefreshCw, GraduationCap, Dumbbell, Plane, Gift, Music, Gamepad2, Briefcase, Stethoscope, Utensils, Wifi, Smartphone, PiggyBank, Receipt, Wrench, Baby, PawPrint, Bus, Train, BookOpen, Film, Camera, Palette, Hammer, Leaf, DollarSign, Percent } from 'lucide-react'
 import { patternService } from '../../../services/patternService'
 
 export const ICON_MAP: Record<string, any> = {
@@ -12,7 +12,8 @@ export const ICON_MAP: Record<string, any> = {
     Heart,
     Sparkles,
     Zap,
-    TrendingUp
+    TrendingUp,
+    GraduationCap, Dumbbell, Plane, Gift, Music, Gamepad2, Briefcase, Stethoscope, Utensils, Wifi, Smartphone, PiggyBank, Receipt, Wrench, Baby, PawPrint, Bus, Train, BookOpen, Film, Camera, Palette, Hammer, Leaf, DollarSign, Percent
 }
 import { clsx, type ClassValue } from 'clsx'
 import { twMerge } from 'tailwind-merge'

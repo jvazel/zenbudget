@@ -10,6 +10,14 @@ vi.mock('../../../services/transactionService', () => ({
     }
 }))
 
+// Mock lucide-react
+vi.mock('lucide-react', () => ({
+    Zap: () => <div />,
+    ZapOff: () => <div />,
+    ArrowRight: () => <div />,
+    Shield: () => <div />
+}))
+
 describe('EnergyLeaks', () => {
     it('renders empty state correctly (Zen Shield)', async () => {
         (transactionService.getEnergyLeaks as any).mockResolvedValue([])
